@@ -44,6 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
@@ -57,6 +58,8 @@ import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
 import net.runelite.api.events.VarbitChanged;
+import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.chat.ChatMessageManager;
@@ -137,6 +140,8 @@ public class GnomeRestaurantPlugin extends Plugin
 	// Gianne jr. dialogue
 
 	private static final Pattern DELIVERY_START_PATTERN = Pattern.compile("([\\w .]+) wants (?:some|a) ([\\w ]+)");
+	private static final Pattern ALUFT_BOX_PATTERN = Pattern.compile("^Your current customer is: (.+?) <br> Your current order is: (?:some|a) (.+?) <br> .+$");
+
 	private static final String EASY_DELIVERY_CANCEL_TEXT = "Fine, your loss. If you want another easy job one come " +
 		"back in five minutes and maybe I'll be able to find you one.";
 	private static final String HARD_DELIVERY_CANCEL_TEXT = "Fine, your loss. I may have an easier job for you, since" +
@@ -169,11 +174,21 @@ public class GnomeRestaurantPlugin extends Plugin
 	public void onGameTick(GameTick event)
 	{
 		boolean isDialogueOpen = client.getWidget(WidgetInfo.DIALOG_NPC_NAME) != null;
-		if (!isDialogueOpen)
+		if (isDialogueOpen)
 		{
+			parseDialog();
 			return;
 		}
 
+		final var w = client.getWidget(InterfaceID.Messagebox.TEXT);
+		if (w != null)
+		{
+			parseMessageboxText(w.getText());
+		}
+	}
+
+	private void parseDialog()
+	{
 		boolean isTalkingToGianneJnr = client.getWidget(WidgetInfo.DIALOG_NPC_NAME).getText().equals("Gianne jnr.");
 		if (!isTalkingToGianneJnr)
 		{
@@ -209,6 +224,27 @@ public class GnomeRestaurantPlugin extends Plugin
 		{
 			cancelOrder();
 		}
+	}
+
+	private void parseMessageboxText(final String text)
+	{
+		final var matcher = ALUFT_BOX_PATTERN.matcher(text);
+		if (!matcher.find())
+		{
+			return;
+		}
+
+		final var matchedRecipient = matcher.group(1);
+		final var matchedRecipe = matcher.group(2);
+
+		if (recipient != null && recipient.getAddressedName().equals(matchedRecipient)
+			&& recipe != null && recipe.getName().equals(matchedRecipe))
+		{
+			return;
+		}
+
+		resetPlugin();
+		startPlugin(matchedRecipient, matchedRecipe);
 	}
 
 	private void cancelOrder()
