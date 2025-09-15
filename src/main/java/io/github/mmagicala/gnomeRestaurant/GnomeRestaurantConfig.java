@@ -26,6 +26,9 @@
 
 package io.github.mmagicala.gnomeRestaurant;
 
+import io.github.mmagicala.gnomeRestaurant.data.UniqueRecipient;
+import java.util.Collections;
+import java.util.Set;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
@@ -36,7 +39,8 @@ public interface GnomeRestaurantConfig extends Config
 	@ConfigItem(
 		keyName = GnomeRestaurantPlugin.SHOW_OVERLAY,
 		name = "Show Overlay",
-		description = "Configures whether to show the overlay window"
+		description = "Configures whether to show the overlay window",
+		position = 0
 	)
 	default boolean showOverlay()
 	{
@@ -46,7 +50,8 @@ public interface GnomeRestaurantConfig extends Config
 	@ConfigItem(
 		keyName = GnomeRestaurantPlugin.SHOW_ORDER_TIMER,
 		name = "Show Order Timer",
-		description = "Configures whether to show the order timer"
+		description = "Configures whether to show the order timer",
+		position = 1
 	)
 	default boolean showOrderTimer()
 	{
@@ -56,7 +61,8 @@ public interface GnomeRestaurantConfig extends Config
 	@ConfigItem(
 		keyName = GnomeRestaurantPlugin.SHOW_DELAY_TIMER,
 		name = "Show Delay Timer",
-		description = "Configures whether to show the order delay timer"
+		description = "Configures whether to show the order delay timer",
+		position = 2
 	)
 	default boolean showDelayTimer()
 	{
@@ -66,7 +72,8 @@ public interface GnomeRestaurantConfig extends Config
 	@ConfigItem(
 		keyName = GnomeRestaurantPlugin.SHOW_HINT_ARROW,
 		name = "Show Hint Arrow",
-		description = "Configures whether to show the hint arrow toward the order recipient"
+		description = "Configures whether to show the hint arrow toward the order recipient",
+		position = 3
 	)
 	default boolean showHintArrow()
 	{
@@ -76,10 +83,23 @@ public interface GnomeRestaurantConfig extends Config
 	@ConfigItem(
 		keyName = GnomeRestaurantPlugin.SHOW_WORLD_MAP_POINT,
 		name = "Show World Map Point",
-		description = "Configures whether to show the recipient's location in the world map"
+		description = "Configures whether to show the recipient's location in the world map",
+		position = 4
 	)
 	default boolean showWorldMapPoint()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+		keyName = GnomeRestaurantPlugin.HIGHLIGHTED_RECIPIENTS,
+		name = "Highlighted Names",
+		description = "Configures recipient names to highlight" +
+			"<br>These recipients can award unique items as a tip",
+		position = 5
+	)
+	default Set<UniqueRecipient> highlightedRecipients()
+	{
+		return Collections.emptySet();
 	}
 }

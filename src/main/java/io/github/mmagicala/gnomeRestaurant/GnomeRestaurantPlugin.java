@@ -29,6 +29,7 @@ package io.github.mmagicala.gnomeRestaurant;
 import com.google.inject.Provides;
 import io.github.mmagicala.gnomeRestaurant.data.OrderRecipients;
 import io.github.mmagicala.gnomeRestaurant.data.Recipes;
+import io.github.mmagicala.gnomeRestaurant.data.UniqueRecipient;
 import io.github.mmagicala.gnomeRestaurant.order.OrderDifficulty;
 import io.github.mmagicala.gnomeRestaurant.order.OrderRecipient;
 import io.github.mmagicala.gnomeRestaurant.overlay.GnomeRestaurantOverlay;
@@ -36,6 +37,7 @@ import io.github.mmagicala.gnomeRestaurant.overlay.OverlayHeader;
 import io.github.mmagicala.gnomeRestaurant.overlay.OverlayTableEntry;
 import io.github.mmagicala.gnomeRestaurant.recipe.Ingredient;
 import io.github.mmagicala.gnomeRestaurant.recipe.Recipe;
+import java.awt.Color;
 import java.security.InvalidParameterException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -44,6 +46,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
@@ -57,6 +60,8 @@ import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
 import net.runelite.api.events.VarbitChanged;
+import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.chat.ChatMessageManager;
@@ -73,6 +78,7 @@ import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import net.runelite.client.ui.overlay.infobox.Timer;
 import net.runelite.client.ui.overlay.worldmap.WorldMapPoint;
 import net.runelite.client.ui.overlay.worldmap.WorldMapPointManager;
+import net.runelite.client.util.ColorUtil;
 
 @Slf4j
 @PluginDescriptor(
@@ -137,6 +143,8 @@ public class GnomeRestaurantPlugin extends Plugin
 	// Gianne jr. dialogue
 
 	private static final Pattern DELIVERY_START_PATTERN = Pattern.compile("([\\w .]+) wants (?:some|a) ([\\w ]+)");
+	private static final Pattern ALUFT_BOX_PATTERN = Pattern.compile("^Your current customer is: (.+?) <br> Your current order is: (?:some|a) (.+?) <br> .+$");
+
 	private static final String EASY_DELIVERY_CANCEL_TEXT = "Fine, your loss. If you want another easy job one come " +
 		"back in five minutes and maybe I'll be able to find you one.";
 	private static final String HARD_DELIVERY_CANCEL_TEXT = "Fine, your loss. I may have an easier job for you, since" +
@@ -169,21 +177,37 @@ public class GnomeRestaurantPlugin extends Plugin
 	public void onGameTick(GameTick event)
 	{
 		boolean isDialogueOpen = client.getWidget(WidgetInfo.DIALOG_NPC_NAME) != null;
-		if (!isDialogueOpen)
+		if (isDialogueOpen)
 		{
+			parseDialog();
 			return;
 		}
 
+		final var w = client.getWidget(InterfaceID.Messagebox.TEXT);
+		if (w != null)
+		{
+			parseMessageboxText(w.getText());
+		}
+	}
+
+	private void parseDialog()
+	{
 		boolean isTalkingToGianneJnr = client.getWidget(WidgetInfo.DIALOG_NPC_NAME).getText().equals("Gianne jnr.");
 		if (!isTalkingToGianneJnr)
 		{
 			return;
 		}
 
-		String dialog = client.getWidget(WidgetInfo.DIALOG_NPC_TEXT).getText();
+		final var w = client.getWidget(InterfaceID.ChatLeft.TEXT);
+		if (w == null)
+		{
+			return;
+		}
+
+		final String dialog = w.getText();
 		// Treat dialogue as a single line
-		dialog = dialog.replace("<br>", " ");
-		Matcher matcher = DELIVERY_START_PATTERN.matcher(dialog);
+		final String line = dialog.replace("<br>", " ");
+		Matcher matcher = DELIVERY_START_PATTERN.matcher(line);
 
 		if (matcher.find())
 		{
@@ -197,18 +221,50 @@ public class GnomeRestaurantPlugin extends Plugin
 				return;
 			}
 
+			final var highlightedRecipients = config.highlightedRecipients();
+			if (!highlightedRecipients.isEmpty())
+			{
+				final var uniqueRecipient = UniqueRecipient.byName(matchedRecipient);
+				if (uniqueRecipient != null && highlightedRecipients.contains(uniqueRecipient))
+				{
+					final var coloredText = dialog.replace(matchedRecipient, ColorUtil.wrapWithColorTag(matchedRecipient, Color.CYAN));
+					w.setText(coloredText);
+				}
+			}
+
 			// Configure plugin
 			resetPlugin();
 			startPlugin(matchedRecipient, matchedRecipe);
 		}
 
-		boolean playerCancelledOrder = dialog.contains(EASY_DELIVERY_CANCEL_TEXT) ||
-			dialog.contains(HARD_DELIVERY_CANCEL_TEXT);
+		boolean playerCancelledOrder = line.contains(EASY_DELIVERY_CANCEL_TEXT) ||
+			line.contains(HARD_DELIVERY_CANCEL_TEXT);
 
 		if (config.showDelayTimer() && !isDelayed && playerCancelledOrder)
 		{
 			cancelOrder();
 		}
+	}
+
+	private void parseMessageboxText(final String text)
+	{
+		final var matcher = ALUFT_BOX_PATTERN.matcher(text);
+		if (!matcher.find())
+		{
+			return;
+		}
+
+		final var matchedRecipient = matcher.group(1);
+		final var matchedRecipe = matcher.group(2);
+
+		if (recipient != null && recipient.getAddressedName().equals(matchedRecipient)
+			&& recipe != null && recipe.getName().equals(matchedRecipe))
+		{
+			return;
+		}
+
+		resetPlugin();
+		startPlugin(matchedRecipient, matchedRecipe);
 	}
 
 	private void cancelOrder()
@@ -521,6 +577,7 @@ public class GnomeRestaurantPlugin extends Plugin
 	public static final String SHOW_OVERLAY = "showOverlay";
 	public static final String SHOW_HINT_ARROW = "showHintArrow";
 	public static final String SHOW_WORLD_MAP_POINT = "showWorldMapPoint";
+	public static final String HIGHLIGHTED_RECIPIENTS = "highlightedRecipients";
 
 	/**
 	 * Monitor changes to plugin config and update the plugin accordingly
