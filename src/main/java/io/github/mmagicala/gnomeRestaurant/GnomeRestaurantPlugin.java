@@ -29,6 +29,7 @@ package io.github.mmagicala.gnomeRestaurant;
 import com.google.inject.Provides;
 import io.github.mmagicala.gnomeRestaurant.data.OrderRecipients;
 import io.github.mmagicala.gnomeRestaurant.data.Recipes;
+import io.github.mmagicala.gnomeRestaurant.data.UniqueRecipient;
 import io.github.mmagicala.gnomeRestaurant.order.OrderDifficulty;
 import io.github.mmagicala.gnomeRestaurant.order.OrderRecipient;
 import io.github.mmagicala.gnomeRestaurant.overlay.GnomeRestaurantOverlay;
@@ -36,6 +37,7 @@ import io.github.mmagicala.gnomeRestaurant.overlay.OverlayHeader;
 import io.github.mmagicala.gnomeRestaurant.overlay.OverlayTableEntry;
 import io.github.mmagicala.gnomeRestaurant.recipe.Ingredient;
 import io.github.mmagicala.gnomeRestaurant.recipe.Recipe;
+import java.awt.Color;
 import java.security.InvalidParameterException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -76,6 +78,7 @@ import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import net.runelite.client.ui.overlay.infobox.Timer;
 import net.runelite.client.ui.overlay.worldmap.WorldMapPoint;
 import net.runelite.client.ui.overlay.worldmap.WorldMapPointManager;
+import net.runelite.client.util.ColorUtil;
 
 @Slf4j
 @PluginDescriptor(
@@ -195,10 +198,16 @@ public class GnomeRestaurantPlugin extends Plugin
 			return;
 		}
 
-		String dialog = client.getWidget(WidgetInfo.DIALOG_NPC_TEXT).getText();
+		final var w = client.getWidget(InterfaceID.ChatLeft.TEXT);
+		if (w == null)
+		{
+			return;
+		}
+
+		final String dialog = w.getText();
 		// Treat dialogue as a single line
-		dialog = dialog.replace("<br>", " ");
-		Matcher matcher = DELIVERY_START_PATTERN.matcher(dialog);
+		final String line = dialog.replace("<br>", " ");
+		Matcher matcher = DELIVERY_START_PATTERN.matcher(line);
 
 		if (matcher.find())
 		{
@@ -212,13 +221,24 @@ public class GnomeRestaurantPlugin extends Plugin
 				return;
 			}
 
+			final var highlightedRecipients = config.highlightedRecipients();
+			if (!highlightedRecipients.isEmpty())
+			{
+				final var uniqueRecipient = UniqueRecipient.byName(matchedRecipient);
+				if (uniqueRecipient != null && highlightedRecipients.contains(uniqueRecipient))
+				{
+					final var coloredText = dialog.replace(matchedRecipient, ColorUtil.wrapWithColorTag(matchedRecipient, Color.CYAN));
+					w.setText(coloredText);
+				}
+			}
+
 			// Configure plugin
 			resetPlugin();
 			startPlugin(matchedRecipient, matchedRecipe);
 		}
 
-		boolean playerCancelledOrder = dialog.contains(EASY_DELIVERY_CANCEL_TEXT) ||
-			dialog.contains(HARD_DELIVERY_CANCEL_TEXT);
+		boolean playerCancelledOrder = line.contains(EASY_DELIVERY_CANCEL_TEXT) ||
+			line.contains(HARD_DELIVERY_CANCEL_TEXT);
 
 		if (config.showDelayTimer() && !isDelayed && playerCancelledOrder)
 		{
@@ -557,6 +577,7 @@ public class GnomeRestaurantPlugin extends Plugin
 	public static final String SHOW_OVERLAY = "showOverlay";
 	public static final String SHOW_HINT_ARROW = "showHintArrow";
 	public static final String SHOW_WORLD_MAP_POINT = "showWorldMapPoint";
+	public static final String HIGHLIGHTED_RECIPIENTS = "highlightedRecipients";
 
 	/**
 	 * Monitor changes to plugin config and update the plugin accordingly

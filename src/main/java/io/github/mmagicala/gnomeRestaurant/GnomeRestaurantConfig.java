@@ -26,6 +26,9 @@
 
 package io.github.mmagicala.gnomeRestaurant;
 
+import io.github.mmagicala.gnomeRestaurant.data.UniqueRecipient;
+import java.util.Collections;
+import java.util.Set;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
@@ -86,5 +89,17 @@ public interface GnomeRestaurantConfig extends Config
 	default boolean showWorldMapPoint()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+		keyName = GnomeRestaurantPlugin.HIGHLIGHTED_RECIPIENTS,
+		name = "Highlighted Names",
+		description = "Configures recipient names to highlight" +
+			"<br>These recipients can award unique items as a tip",
+		position = 5
+	)
+	default Set<UniqueRecipient> highlightedRecipients()
+	{
+		return Collections.emptySet();
 	}
 }
