@@ -1,11 +1,10 @@
 package io.github.mmagicala.gnomeRestaurant.overlay;
 
-import lombok.Getter;
 
 public class OverlayHeader
 {
-	public String instruction;
-	public int stepNum, totalSteps;
+	public final String instruction;
+	public final int stepNum, totalSteps;
 
 	public OverlayHeader(String instruction, int stepNum, int totalSteps)
 	{

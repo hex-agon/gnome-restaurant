@@ -1,33 +1,38 @@
 package io.github.mmagicala.gnomeRestaurant.overlay;
 
-import lombok.Getter;
-import lombok.Setter;
+public class OverlayTableEntry {
+    // Used by plugin to update entry
 
-public class OverlayTableEntry
-{
-	// Used by plugin to update entry
+    private final int itemId;
+    // Used by overlay table for output
+    private final String itemName;
+    private final int requiredCount;
+    private int inventoryCount;
 
-	@Getter
-	private int itemId;
+    public OverlayTableEntry(int itemId, String itemName, int inventoryCount, int requiredCount) {
+        this.itemId = itemId;
+        this.itemName = itemName;
+        this.inventoryCount = inventoryCount;
+        this.requiredCount = requiredCount;
+    }
 
-	// Used by overlay table for output
+    public int getItemId() {
+        return this.itemId;
+    }
 
-	@Getter
-	private String itemName;
+    public String getItemName() {
+        return this.itemName;
+    }
 
-	@Getter
-	@Setter
-	private int inventoryCount;
+    public int getInventoryCount() {
+        return this.inventoryCount;
+    }
 
-	@Getter
-	private int requiredCount;
+    public int getRequiredCount() {
+        return this.requiredCount;
+    }
 
-	public OverlayTableEntry(int itemId, String itemName, int inventoryCount, int requiredCount)
-	{
-		this.itemId = itemId;
-		this.itemName = itemName;
-		this.inventoryCount = inventoryCount;
-		this.requiredCount = requiredCount;
-	}
-
+    public void setInventoryCount(int inventoryCount) {
+        this.inventoryCount = inventoryCount;
+    }
 }

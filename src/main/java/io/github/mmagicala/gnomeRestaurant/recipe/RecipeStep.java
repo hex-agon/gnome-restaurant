@@ -27,38 +27,42 @@
 package io.github.mmagicala.gnomeRestaurant.recipe;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import lombok.Getter;
 
-public class RecipeStep
-{
-	@Getter
-	private final RecipeInstruction instruction;
+public class RecipeStep {
 
-	@Getter
-	private final ArrayList<Ingredient> ingredients;
+    private final RecipeInstruction instruction;
 
-	@Getter
-	private final int producedItemId;
+    private final ArrayList<Ingredient> ingredients;
 
-	public RecipeStep(RecipeInstruction instruction, ArrayList<Ingredient> ingredients, int producedItemId)
-	{
-		this.instruction = instruction;
-		this.ingredients = ingredients;
-		this.producedItemId = producedItemId;
-	}
+    private final int producedItemId;
 
-	// Step only requires one ingredient
-	public RecipeStep(RecipeInstruction instruction, Ingredient ingredient, int producedItemId)
-	{
-		this(instruction, new ArrayList<>(), producedItemId);
-		this.ingredients.add(ingredient);
-	}
+    public RecipeStep(RecipeInstruction instruction, ArrayList<Ingredient> ingredients, int producedItemId) {
+        this.instruction = instruction;
+        this.ingredients = ingredients;
+        this.producedItemId = producedItemId;
+    }
 
-	public ArrayList<Ingredient> getRawIngredients()
-	{
-		ArrayList<Ingredient> rawIngredients = new ArrayList<>(ingredients);
-		rawIngredients.removeIf(Ingredient::isIntermediate);
-		return rawIngredients;
-	}
+    // Step only requires one ingredient
+    public RecipeStep(RecipeInstruction instruction, Ingredient ingredient, int producedItemId) {
+        this(instruction, new ArrayList<>(), producedItemId);
+        this.ingredients.add(ingredient);
+    }
+
+    public ArrayList<Ingredient> getRawIngredients() {
+        ArrayList<Ingredient> rawIngredients = new ArrayList<>(ingredients);
+        rawIngredients.removeIf(Ingredient::isIntermediate);
+        return rawIngredients;
+    }
+
+    public RecipeInstruction getInstruction() {
+        return this.instruction;
+    }
+
+    public ArrayList<Ingredient> getIngredients() {
+        return this.ingredients;
+    }
+
+    public int getProducedItemId() {
+        return this.producedItemId;
+    }
 }

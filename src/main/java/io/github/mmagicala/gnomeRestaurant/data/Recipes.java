@@ -6,7 +6,6 @@ import io.github.mmagicala.gnomeRestaurant.recipe.Recipe;
 import io.github.mmagicala.gnomeRestaurant.recipe.RecipeStep;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import lombok.Getter;
 import net.runelite.api.ItemID;
 
 public class Recipes
@@ -344,22 +343,31 @@ public class Recipes
 
 	// Internal enum to create baked recipes
 
-	private enum BakedRecipeType
-	{
-		CRUNCHIES(ItemID.RAW_CRUNCHIES, ItemID.CRUNCHY_TRAY, ItemID.HALF_BAKED_CRUNCHY),
-		BATTA(ItemID.RAW_BATTA, ItemID.BATTA_TIN, ItemID.HALF_BAKED_BATTA),
-		GNOMEBOWL(ItemID.RAW_GNOMEBOWL, ItemID.GNOMEBOWL_MOULD, ItemID.HALF_BAKED_BOWL);
+    private enum BakedRecipeType {
+        CRUNCHIES(ItemID.RAW_CRUNCHIES, ItemID.CRUNCHY_TRAY, ItemID.HALF_BAKED_CRUNCHY),
+        BATTA(ItemID.RAW_BATTA, ItemID.BATTA_TIN, ItemID.HALF_BAKED_BATTA),
+        GNOMEBOWL(ItemID.RAW_GNOMEBOWL, ItemID.GNOMEBOWL_MOULD, ItemID.HALF_BAKED_BOWL);
 
-		@Getter
-		private int rawId, toolId, halfBakedId;
+        private final int rawId, toolId, halfBakedId;
 
-		BakedRecipeType(int rawId, int toolId, int halfBakedId)
-		{
-			this.rawId = rawId;
-			this.halfBakedId = halfBakedId;
-			this.toolId = toolId;
-		}
-	}
+        BakedRecipeType(int rawId, int toolId, int halfBakedId) {
+            this.rawId = rawId;
+            this.halfBakedId = halfBakedId;
+            this.toolId = toolId;
+        }
+
+        public int getRawId() {
+            return this.rawId;
+        }
+
+        public int getToolId() {
+            return this.toolId;
+        }
+
+        public int getHalfBakedId() {
+            return this.halfBakedId;
+        }
+    }
 
 	/**
 	 * Partially create baked recipe. The steps are: raw item -> half baked item -> half made item
