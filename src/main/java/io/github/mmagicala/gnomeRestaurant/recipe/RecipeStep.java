@@ -27,16 +27,15 @@
 package io.github.mmagicala.gnomeRestaurant.recipe;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RecipeStep {
 
     private final RecipeInstruction instruction;
-
-    private final ArrayList<Ingredient> ingredients;
-
+    private final List<Ingredient> ingredients;
     private final int producedItemId;
 
-    public RecipeStep(RecipeInstruction instruction, ArrayList<Ingredient> ingredients, int producedItemId) {
+    public RecipeStep(RecipeInstruction instruction, List<Ingredient> ingredients, int producedItemId) {
         this.instruction = instruction;
         this.ingredients = ingredients;
         this.producedItemId = producedItemId;
@@ -48,8 +47,8 @@ public class RecipeStep {
         this.ingredients.add(ingredient);
     }
 
-    public ArrayList<Ingredient> getRawIngredients() {
-        ArrayList<Ingredient> rawIngredients = new ArrayList<>(ingredients);
+    public List<Ingredient> getRawIngredients() {
+        List<Ingredient> rawIngredients = new ArrayList<>(ingredients);
         rawIngredients.removeIf(Ingredient::isIntermediate);
         return rawIngredients;
     }
@@ -58,7 +57,7 @@ public class RecipeStep {
         return this.instruction;
     }
 
-    public ArrayList<Ingredient> getIngredients() {
+    public List<Ingredient> getIngredients() {
         return this.ingredients;
     }
 

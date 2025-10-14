@@ -27,8 +27,6 @@
 package io.github.mmagicala.gnomeRestaurant;
 
 import com.google.inject.Provides;
-import io.github.mmagicala.gnomeRestaurant.data.OrderRecipients;
-import io.github.mmagicala.gnomeRestaurant.data.Recipes;
 import io.github.mmagicala.gnomeRestaurant.order.OrderDifficulty;
 import io.github.mmagicala.gnomeRestaurant.order.OrderRecipient;
 import io.github.mmagicala.gnomeRestaurant.overlay.GnomeRestaurantOverlay;
@@ -132,9 +130,9 @@ public class GnomeRestaurantPlugin extends Plugin {
 
     // Overlay
 
-    private final OverlayHeader overlayHeader = new OverlayHeader("null", -1, -1);
-    private final ArrayList<OverlayTableEntry> stepIngredientsOverlayTable = new ArrayList<>();
-    private final ArrayList<OverlayTableEntry> nextRawIngredientsOverlayTable = new ArrayList<>();
+    private OverlayHeader overlayHeader = new OverlayHeader("null", -1, -1);
+    private final List<OverlayTableEntry> stepIngredientsOverlayTable = new ArrayList<>();
+    private final List<OverlayTableEntry> nextRawIngredientsOverlayTable = new ArrayList<>();
 
     // Gianne jr. dialogue
 
@@ -144,6 +142,10 @@ public class GnomeRestaurantPlugin extends Plugin {
     private static final String HARD_DELIVERY_CANCEL_TEXT = "Fine, your loss. I may have an easier job for you, since" +
             " you chickened out of that one, If you want another hard one come back in five minutes and maybe I'll be" +
             " able to find you a something.";
+
+    public OverlayHeader overlayHeader() {
+        return overlayHeader;
+    }
 
     @Override
     protected void shutDown() throws Exception {
@@ -225,8 +227,8 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void parseOrder(String addressedName, String recipeName) {
-        recipe = Recipes.getRecipe(recipeName);
-        recipient = OrderRecipients.getRecipient(addressedName);
+        recipe = Recipe.getRecipe(recipeName);
+        recipient = OrderRecipient.getRecipient(addressedName);
     }
 
     /**
@@ -295,8 +297,7 @@ public class GnomeRestaurantPlugin extends Plugin {
         rebuildOverlayTables();
 
         // Display overlay
-        overlay = new GnomeRestaurantOverlay(this, overlayHeader, stepIngredientsOverlayTable,
-                nextRawIngredientsOverlayTable);
+        overlay = new GnomeRestaurantOverlay(this, stepIngredientsOverlayTable, nextRawIngredientsOverlayTable);
         overlayManager.add(overlay);
     }
 
@@ -325,7 +326,10 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void showWorldMapPoint() {
-        worldMapPoint = new WorldMapPoint(recipient.getLocation(), itemManager.getImage(ItemID.ALUFT_DELIVERY_BOX));
+        worldMapPoint = WorldMapPoint.builder().name(recipient.getInGameName())
+                                     .worldPoint(recipient.getLocation())
+                                     .image(itemManager.getImage(ItemID.ALUFT_DELIVERY_BOX))
+                                     .build();
         worldMapPoint.setSnapToEdge(true);
         worldMapPoint.setJumpOnClick(true);
         worldMapPoint.setTooltip(tooltipText);
@@ -408,23 +412,21 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void updateOverlayHeader() {
-        overlayHeader.instruction = recipe.getSteps().get(stepIdx).getInstruction().getOverlayDirections();
-        overlayHeader.stepNum = stepIdx + 1;
-        overlayHeader.totalSteps = recipe.getSteps().size();
+        var instruction = recipe.getSteps().get(stepIdx).getInstruction().getOverlayDirections();
+        overlayHeader = new OverlayHeader(instruction, stepIdx + 1, recipe.getSteps().size());
     }
 
     private void rebuildOverlayTables() {
         clearOverlayTables();
 
-        ArrayList<Ingredient> stepIngredients = recipe.getSteps().get(stepIdx).getIngredients();
+        List<Ingredient> stepIngredients = recipe.getSteps().get(stepIdx).getIngredients();
         rebuildOverlayTable(stepIngredients, stepIngredientsOverlayTable);
 
-        ArrayList<Ingredient> nextRawIngredients = recipe.getNextRawIngredients(stepIdx);
+        List<Ingredient> nextRawIngredients = recipe.getNextRawIngredients(stepIdx);
         rebuildOverlayTable(nextRawIngredients, nextRawIngredientsOverlayTable);
     }
 
-    private void rebuildOverlayTable(ArrayList<Ingredient> ingredients,
-            ArrayList<OverlayTableEntry> overlayTable) {
+    private void rebuildOverlayTable(List<Ingredient> ingredients, List<OverlayTableEntry> overlayTable) {
         for (Ingredient ingredient : ingredients) {
             int itemId = ingredient.getItemId();
             String itemName = itemManager.getItemComposition(itemId).getName();
@@ -440,7 +442,7 @@ public class GnomeRestaurantPlugin extends Plugin {
         updateOverlayTable(nextRawIngredientsOverlayTable);
     }
 
-    private void updateOverlayTable(ArrayList<OverlayTableEntry> overlayTable) {
+    private void updateOverlayTable(List<OverlayTableEntry> overlayTable) {
         for (OverlayTableEntry entry : overlayTable) {
             int inventoryCount = getItemCount(entry.getItemId());
             if (entry.getInventoryCount() != inventoryCount) {
