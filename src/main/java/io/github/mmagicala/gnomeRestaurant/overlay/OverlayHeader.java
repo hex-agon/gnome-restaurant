@@ -1,6 +1,5 @@
 package io.github.mmagicala.gnomeRestaurant.overlay;
 
-import lombok.Getter;
 
 public class OverlayHeader
 {

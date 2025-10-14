@@ -26,23 +26,31 @@
 
 package io.github.mmagicala.gnomeRestaurant.recipe;
 
-import lombok.Getter;
+public class Ingredient {
 
-public class Ingredient
-{
-	@Getter
-	private int itemId, count;
+    private final int itemId;
+    private final int count;
+    private final boolean isIntermediate;
 
-	@Getter
-	private boolean isIntermediate;
+    public Ingredient(int itemId, int count) {
+        this(itemId, count, false);
+    }
 
-	public Ingredient(int itemId, int count){
-		this(itemId, count, false);
-	}
+    public Ingredient(int itemId, int count, boolean isIntermediate) {
+        this.itemId = itemId;
+        this.count = count;
+        this.isIntermediate = isIntermediate;
+    }
 
-	public Ingredient(int itemId, int count, boolean isIntermediate){
-		this.itemId = itemId;
-		this.count = count;
-		this.isIntermediate = isIntermediate;
-	}
+    public int getItemId() {
+        return this.itemId;
+    }
+
+    public int getCount() {
+        return this.count;
+    }
+
+    public boolean isIntermediate() {
+        return this.isIntermediate;
+    }
 }
