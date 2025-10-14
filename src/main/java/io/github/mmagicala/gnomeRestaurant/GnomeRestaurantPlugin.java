@@ -38,9 +38,9 @@ import io.github.mmagicala.gnomeRestaurant.recipe.Ingredient;
 import io.github.mmagicala.gnomeRestaurant.recipe.Recipe;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
-import net.runelite.api.InventoryID;
 import net.runelite.api.ItemContainer;
-import net.runelite.api.ItemID;
+import net.runelite.api.gameval.InventoryID;
+import net.runelite.api.gameval.ItemID;
 import net.runelite.api.NPC;
 import net.runelite.api.events.CommandExecuted;
 import net.runelite.api.events.GameTick;
@@ -48,7 +48,8 @@ import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
 import net.runelite.api.events.VarbitChanged;
-import net.runelite.api.widgets.WidgetInfo;
+import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.InterfaceID.ChatLeft;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.chat.QueuedMessage;
@@ -166,17 +167,17 @@ public class GnomeRestaurantPlugin extends Plugin {
     // Monitor dialogue for Gianne jnr's new order
     @Subscribe
     public void onGameTick(GameTick event) {
-        boolean isDialogueOpen = client.getWidget(WidgetInfo.DIALOG_NPC_NAME) != null;
+        boolean isDialogueOpen = client.getWidget(InterfaceID.ChatLeft.NAME) != null;
         if (!isDialogueOpen) {
             return;
         }
 
-        boolean isTalkingToGianneJnr = client.getWidget(WidgetInfo.DIALOG_NPC_NAME).getText().equals("Gianne jnr.");
+        boolean isTalkingToGianneJnr = client.getWidget(InterfaceID.ChatLeft.NAME).getText().equals("Gianne jnr.");
         if (!isTalkingToGianneJnr) {
             return;
         }
 
-        String dialog = client.getWidget(WidgetInfo.DIALOG_NPC_TEXT).getText();
+        String dialog = client.getWidget(ChatLeft.TEXT).getText();
         // Treat dialogue as a single line
         dialog = dialog.replace("<br>", " ");
         Matcher matcher = DELIVERY_START_PATTERN.matcher(dialog);
@@ -218,7 +219,7 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void setupDelayTimer() {
-        timer = new Timer(5, ChronoUnit.MINUTES, itemManager.getImage(ItemID.ALUFT_ALOFT_BOX), this);
+        timer = new Timer(5, ChronoUnit.MINUTES, itemManager.getImage(ItemID.ALUFT_DELIVERY_BOX), this);
         timer.setTooltip("Cannot place an order at this time");
         infoBoxManager.addInfoBox(timer);
     }
@@ -257,7 +258,7 @@ public class GnomeRestaurantPlugin extends Plugin {
 
     private int getItemCount(int itemId) {
         // Assume the inventory is empty (and player just logged in) if it is null
-        ItemContainer inventory = client.getItemContainer(InventoryID.INVENTORY);
+        ItemContainer inventory = client.getItemContainer(InventoryID.INV);
 
         if (inventory == null) {
             return 0;
@@ -324,7 +325,7 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void showWorldMapPoint() {
-        worldMapPoint = new WorldMapPoint(recipient.getLocation(), itemManager.getImage(ItemID.ALUFT_ALOFT_BOX));
+        worldMapPoint = new WorldMapPoint(recipient.getLocation(), itemManager.getImage(ItemID.ALUFT_DELIVERY_BOX));
         worldMapPoint.setSnapToEdge(true);
         worldMapPoint.setJumpOnClick(true);
         worldMapPoint.setTooltip(tooltipText);
@@ -391,7 +392,7 @@ public class GnomeRestaurantPlugin extends Plugin {
     @Subscribe
     public void onItemContainerChanged(ItemContainerChanged event) {
         if (overlay != null) {
-            if (event.getContainerId() != InventoryID.INVENTORY.getId()) {
+            if (event.getContainerId() != InventoryID.INV) {
                 return;
             }
 

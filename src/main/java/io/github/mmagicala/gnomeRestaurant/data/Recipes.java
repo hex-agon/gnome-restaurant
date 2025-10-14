@@ -8,7 +8,7 @@ import io.github.mmagicala.gnomeRestaurant.recipe.RecipeStep;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
-import net.runelite.api.ItemID;
+import net.runelite.api.gameval.ItemID;
 
 public class Recipes {
 
@@ -27,8 +27,8 @@ public class Recipes {
                             add(new Ingredient(ItemID.GNOME_SPICE, 1));
                         }
                     },
-                    ItemID.HALF_MADE_BOWL_9559,
-                    ItemID.UNFINISHED_BOWL_9560,
+                    ItemID.ALUFT_HALF_BAKED_WORM_HOLE,
+                    ItemID.ALUFT_BAKED_WORM_HOLE,
                     new Ingredient(ItemID.EQUA_LEAVES, 1),
                     ItemID.WORM_HOLE)
             ));
@@ -42,8 +42,8 @@ public class Recipes {
                             add(new Ingredient(ItemID.GNOME_SPICE, 1));
                         }
                     },
-                    ItemID.HALF_MADE_BOWL_9561,
-                    ItemID.UNFINISHED_BOWL_9562,
+                    ItemID.ALUFT_HALF_BAKED_VEG_BALL,
+                    ItemID.ALUFT_BAKED_VEG_BALL,
                     new Ingredient(ItemID.EQUA_LEAVES, 1),
                     ItemID.VEG_BALL)
             ));
@@ -59,7 +59,7 @@ public class Recipes {
                             add(new Ingredient(ItemID.EQUA_LEAVES, 2));
                         }
                     },
-                    ItemID.HALF_MADE_BOWL,
+                    ItemID.ALUFT_HALF_BAKED_TANGLED_TOADS_LEGS,
                     ItemID.TANGLED_TOADS_LEGS)
             ));
 
@@ -71,8 +71,8 @@ public class Recipes {
                             add(new Ingredient(ItemID.EQUA_LEAVES, 1));
                         }
                     },
-                    ItemID.HALF_MADE_BOWL_9563,
-                    ItemID.UNFINISHED_BOWL_9564,
+                    ItemID.ALUFT_HALF_BAKED_CHOC_BOMB,
+                    ItemID.ALUFT_BAKED_CHOC_BOMB,
                     new ArrayList<Ingredient>() {
                         {
                             add(new Ingredient(ItemID.CHOCOLATE_DUST, 1));
@@ -94,8 +94,8 @@ public class Recipes {
                             add(new Ingredient(ItemID.PINEAPPLE_CHUNKS, 1));
                         }
                     },
-                    ItemID.HALF_MADE_BATTA,
-                    ItemID.UNFINISHED_BATTA_9479,
+                    ItemID.ALUFT_HALF_MADE_FRUIT_BATTA,
+                    ItemID.ALUFT_BAKED_FRUIT_BATTA,
                     new Ingredient(ItemID.GNOME_SPICE, 1),
                     ItemID.FRUIT_BATTA)
             ));
@@ -110,7 +110,7 @@ public class Recipes {
                             add(new Ingredient(ItemID.TOADS_LEGS, 1));
                         }
                     },
-                    ItemID.HALF_MADE_BATTA_9482,
+                    ItemID.ALUFT_HALF_MADE_TOAD_BATTA,
                     ItemID.TOAD_BATTA)
             ));
 
@@ -123,8 +123,8 @@ public class Recipes {
                             add(new Ingredient(ItemID.GNOME_SPICE, 1));
                         }
                     },
-                    ItemID.HALF_MADE_BATTA_9480,
-                    ItemID.UNFINISHED_BATTA_9481,
+                    ItemID.ALUFT_HALF_MADE_WORM_BATTA,
+                    ItemID.ALUFT_BAKED_WORM_BATTA,
                     new Ingredient(ItemID.EQUA_LEAVES, 1),
                     ItemID.WORM_BATTA)
             ));
@@ -140,8 +140,8 @@ public class Recipes {
                             add(new Ingredient(ItemID.CABBAGE, 1));
                         }
                     },
-                    ItemID.HALF_MADE_BATTA_9485,
-                    ItemID.UNFINISHED_BATTA_9486,
+                    ItemID.ALUFT_HALF_MADE_VEG_BATTA,
+                    ItemID.ALUFT_BAKED_VEG_BATTA,
                     new Ingredient(ItemID.EQUA_LEAVES, 1),
                     ItemID.VEGETABLE_BATTA)
             ));
@@ -154,10 +154,10 @@ public class Recipes {
                             add(new Ingredient(ItemID.TOMATO, 1));
                         }
                     },
-                    ItemID.HALF_MADE_BATTA_9483,
-                    ItemID.UNFINISHED_BATTA_9484,
+                    ItemID.ALUFT_HALF_MADE_CHEESE_TOM_BATTA,
+                    ItemID.ALUFT_BAKED_CHEESE_TOM_BATTA,
                     new Ingredient(ItemID.EQUA_LEAVES, 1),
-                    ItemID.CHEESETOM_BATTA)
+                    ItemID.CHEESE_TOM_BATTA)
             ));
 
             // Crunchies
@@ -170,8 +170,8 @@ public class Recipes {
                             add(new Ingredient(ItemID.GNOME_SPICE, 1));
                         }
                     },
-                    ItemID.HALF_MADE_CRUNCHY,
-                    ItemID.UNFINISHED_CRUNCHY_9578,
+                    ItemID.ALUFT_HALF_BAKED_CHOC_CHIP_CRUNCHY,
+                    ItemID.ALUFT_BAKED_CHOC_CHIP_CRUNCHY,
                     new Ingredient(ItemID.CHOCOLATE_DUST, 1),
                     ItemID.CHOCCHIP_CRUNCHIES)
             ));
@@ -184,8 +184,8 @@ public class Recipes {
                             add(new Ingredient(ItemID.GNOME_SPICE, 1));
                         }
                     },
-                    ItemID.HALF_MADE_CRUNCHY_9579,
-                    ItemID.UNFINISHED_CRUNCHY_9580,
+                    ItemID.ALUFT_HALF_BAKED_SPICY_CRUNCHY,
+                    ItemID.ALUFT_BAKED_SPICY_CRUNCHY,
                     new Ingredient(ItemID.GNOME_SPICE, 1),
                     ItemID.SPICY_CRUNCHIES)
             ));
@@ -198,8 +198,8 @@ public class Recipes {
                             add(new Ingredient(ItemID.GNOME_SPICE, 1));
                         }
                     },
-                    ItemID.HALF_MADE_CRUNCHY_9581,
-                    ItemID.UNFINISHED_CRUNCHY_9582,
+                    ItemID.ALUFT_HALF_BAKED_TOAD_CRUNCHY,
+                    ItemID.ALUFT_BAKED_TOAD_CRUNCHY,
                     new Ingredient(ItemID.EQUA_LEAVES, 1),
                     ItemID.TOAD_CRUNCHIES)
             ));
@@ -213,8 +213,8 @@ public class Recipes {
                             add(new Ingredient(ItemID.EQUA_LEAVES, 1));
                         }
                     },
-                    ItemID.HALF_MADE_CRUNCHY_9583,
-                    ItemID.UNFINISHED_CRUNCHY_9584,
+                    ItemID.ALUFT_HALF_BAKED_WORM_CRUNCHY,
+                    ItemID.ALUFT_BAKED_WORM_CRUNCHY,
                     new Ingredient(ItemID.GNOME_SPICE, 1),
                     ItemID.WORM_CRUNCHIES)
             ));
@@ -229,7 +229,7 @@ public class Recipes {
                             add(new Ingredient(ItemID.ORANGE, 1));
                         }
                     },
-                    ItemID.MIXED_BLAST,
+                    ItemID.ALUFT_SHAKER_FRUIT_BLAST,
                     new Ingredient(ItemID.LEMON_SLICES, 1),
                     ItemID.FRUIT_BLAST)
             ));
@@ -242,7 +242,7 @@ public class Recipes {
                             add(new Ingredient(ItemID.ORANGE, 1));
                         }
                     },
-                    ItemID.MIXED_PUNCH,
+                    ItemID.ALUFT_SHAKER_PINEAPPLE_PUNCH,
                     new ArrayList<Ingredient>() {
                         {
                             add(new Ingredient(ItemID.LIME_CHUNKS, 1));
@@ -263,7 +263,7 @@ public class Recipes {
                             add(new Ingredient(ItemID.ORANGE, 1));
                         }
                     },
-                    ItemID.MIXED_BLIZZARD,
+                    ItemID.ALUFT_SHAKER_WIZZARD_BLIZZARD,
                     new ArrayList<Ingredient>() {
                         {
                             add(new Ingredient(ItemID.PINEAPPLE_CHUNKS, 1));
@@ -280,14 +280,14 @@ public class Recipes {
                             add(new Ingredient(ItemID.LIME, 3));
                         }
                     },
-                    ItemID.MIXED_SGG,
+                    ItemID.ALUFT_SHAKER_SGG,
                     new ArrayList<Ingredient>() {
                         {
                             add(new Ingredient(ItemID.LIME_SLICES, 1));
                             add(new Ingredient(ItemID.EQUA_LEAVES, 1));
                         }
                     },
-                    ItemID.SHORT_GREEN_GUY)
+                    ItemID.ALUFT_SGG)
             ));
 
             add(new Recipe("drunk dragon", createDrunkDragonRecipe()));
@@ -303,7 +303,7 @@ public class Recipes {
                             add(new Ingredient(ItemID.ORANGE, 1));
                         }
                     },
-                    ItemID.MIXED_SPECIAL,
+                    ItemID.ALUFT_SHAKER_BLURBERRY_SPECIAL,
                     new ArrayList<Ingredient>() {
                         {
                             add(new Ingredient(ItemID.LEMON_CHUNKS, 1));
@@ -513,7 +513,7 @@ public class Recipes {
 
         recipe.add(new RecipeStep(RecipeInstruction.POUR, new ArrayList<Ingredient>() {
                     {
-                        add(new Ingredient(ItemID.COCKTAIL_GLASS, 1, true));
+                        add(new Ingredient(ItemID.COCKTAIL_GLASS_EMPTY, 1, true));
                         add(new Ingredient(mixedItem, 1, true));
                         addAll(pouredIngredients);
                     }
@@ -572,24 +572,24 @@ public class Recipes {
             }
         };
 
-        ArrayList<RecipeStep> recipe = createCocktailRecipeHelper(shakedIngredients, ItemID.MIXED_DRAGON,
-                new ArrayList<>(), ItemID.MIXED_DRAGON_9575, false);
+        ArrayList<RecipeStep> recipe = createCocktailRecipeHelper(shakedIngredients, ItemID.ALUFT_SHAKER_DRUNK_DRAGON,
+                new ArrayList<>(), ItemID.ALUFT_SHAKER_DRUNK_DRAGON_PREFINISH, false);
 
         // Poured cocktail -> unfinished item
 
         recipe.add(new RecipeStep(RecipeInstruction.ADD_TOPPINGS,
                 new ArrayList<Ingredient>() {
                     {
-                        add(new Ingredient(ItemID.MIXED_DRAGON_9575, 1, true));
+                        add(new Ingredient(ItemID.ALUFT_SHAKER_DRUNK_DRAGON_PREFINISH, 1, true));
                         addAll(toppedIngredients);
                     }
                 },
-                ItemID.MIXED_DRAGON_9576));
+                ItemID.ALUFT_SHAKER_DRUNK_DRAGON_PREHEAT));
 
         // Unfinished item -> finished item
 
         recipe.add(new RecipeStep(RecipeInstruction.HEAT_COCKTAIL,
-                new Ingredient(ItemID.MIXED_DRAGON_9576, 1, true), ItemID.DRUNK_DRAGON));
+                new Ingredient(ItemID.ALUFT_SHAKER_DRUNK_DRAGON_PREHEAT, 1, true), ItemID.DRUNK_DRAGON));
 
         // Deliver finished item
 
@@ -607,33 +607,33 @@ public class Recipes {
                 add(new Ingredient(ItemID.WHISKY, 1));
                 add(new Ingredient(ItemID.CHOCOLATE_BAR, 1));
                 add(new Ingredient(ItemID.EQUA_LEAVES, 1));
-                add(new Ingredient(ItemID.BUCKET_OF_MILK, 1));
+                add(new Ingredient(ItemID.BUCKET_MILK, 1));
             }
         };
 
-        ArrayList<RecipeStep> recipe = createCocktailRecipeHelper(shakedIngredients, ItemID.MIXED_SATURDAY,
-                new ArrayList<>(), ItemID.MIXED_SATURDAY_9572, false);
+        ArrayList<RecipeStep> recipe = createCocktailRecipeHelper(shakedIngredients, ItemID.ALUFT_SHAKER_CHOC_SATURDAY,
+                new ArrayList<>(), ItemID.ALUFT_SHAKER_CHOC_SATURDAY_PREHEAT, false);
 
         // poured cocktail -> unfinished item
 
         recipe.add(new RecipeStep(RecipeInstruction.HEAT_COCKTAIL,
-                new Ingredient(ItemID.MIXED_SATURDAY_9572, 1, true), ItemID.MIXED_SATURDAY_9573));
+                new Ingredient(ItemID.ALUFT_SHAKER_CHOC_SATURDAY_PREHEAT, 1, true), ItemID.ALUFT_SHAKER_CHOC_SATURDAY_HEATED));
 
         // unfinished item -> finished item
 
         recipe.add(new RecipeStep(RecipeInstruction.ADD_TOPPINGS,
                 new ArrayList<Ingredient>() {
                     {
-                        add(new Ingredient(ItemID.MIXED_SATURDAY_9573, 1, true));
+                        add(new Ingredient(ItemID.ALUFT_SHAKER_CHOC_SATURDAY_HEATED, 1, true));
                         add(new Ingredient(ItemID.CHOCOLATE_DUST, 1));
                         add(new Ingredient(ItemID.POT_OF_CREAM, 1));
                     }
                 }
-                , ItemID.CHOC_SATURDAY));
+                , ItemID.CHOCOLATE_SATURDAY));
 
         // Deliver finished item
 
-        recipe.add(new RecipeStep(RecipeInstruction.DELIVER, new Ingredient(ItemID.CHOC_SATURDAY, 1,
+        recipe.add(new RecipeStep(RecipeInstruction.DELIVER, new Ingredient(ItemID.ALUFT_CHOC_SATURDAY, 1,
                 true), NO_PRODUCED_ITEM_ID));
 
         return recipe;
