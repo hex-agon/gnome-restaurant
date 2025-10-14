@@ -1,6 +1,6 @@
 package io.github.mmagicala.gnomeRestaurant.order;
 
-public enum OrderDifficulty
-{
-	EASY, HARD
+public enum OrderDifficulty {
+    EASY,
+    HARD
 }

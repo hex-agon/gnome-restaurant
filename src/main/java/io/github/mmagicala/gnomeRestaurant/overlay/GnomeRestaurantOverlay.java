@@ -27,109 +27,94 @@
 package io.github.mmagicala.gnomeRestaurant.overlay;
 
 import io.github.mmagicala.gnomeRestaurant.GnomeRestaurantPlugin;
+import net.runelite.client.ui.overlay.OverlayPanel;
+import net.runelite.client.ui.overlay.components.ComponentConstants;
+import net.runelite.client.ui.overlay.components.LineComponent;
+import net.runelite.client.ui.overlay.components.TitleComponent;
+
+import javax.inject.Inject;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Map;
-import javax.inject.Inject;
-import net.runelite.api.ItemComposition;
-import net.runelite.api.MenuAction;
-import net.runelite.client.game.ItemManager;
-import net.runelite.client.ui.overlay.OverlayMenuEntry;
-import net.runelite.client.ui.overlay.OverlayPanel;
-import net.runelite.client.ui.overlay.components.ComponentConstants;
-import net.runelite.client.ui.overlay.components.LineComponent;
-import net.runelite.client.ui.overlay.components.TitleComponent;
 
-public class GnomeRestaurantOverlay extends OverlayPanel
-{
-	// Overlay contents
-	private final OverlayHeader header;
-	private final ArrayList<OverlayTableEntry> stepIngredientsOverlayTable;
-	private final ArrayList<OverlayTableEntry> futureRawIngredientsOverlayTable;
+public class GnomeRestaurantOverlay extends OverlayPanel {
 
-	private final GnomeRestaurantPlugin plugin;
-	private static final int PADDING = 10;
+    // Overlay contents
+    private final OverlayHeader header;
+    private final ArrayList<OverlayTableEntry> stepIngredientsOverlayTable;
+    private final ArrayList<OverlayTableEntry> futureRawIngredientsOverlayTable;
 
-	@Inject
-	public GnomeRestaurantOverlay(GnomeRestaurantPlugin plugin, OverlayHeader header,
-									 ArrayList<OverlayTableEntry> stepIngredientsOverlayTable,
-									 ArrayList<OverlayTableEntry> futureRawIngredientsOverlayTable)
-	{
-		super(plugin);
-		this.plugin = plugin;
+    private final GnomeRestaurantPlugin plugin;
+    private static final int PADDING = 10;
 
-		this.header = header;
-		this.stepIngredientsOverlayTable = stepIngredientsOverlayTable;
-		this.futureRawIngredientsOverlayTable = futureRawIngredientsOverlayTable;
+    @Inject
+    public GnomeRestaurantOverlay(GnomeRestaurantPlugin plugin, OverlayHeader header,
+            ArrayList<OverlayTableEntry> stepIngredientsOverlayTable,
+            ArrayList<OverlayTableEntry> futureRawIngredientsOverlayTable) {
+        super(plugin);
+        this.plugin = plugin;
 
-		// Padding
-		panelComponent.setBorder(new Rectangle(PADDING, PADDING, PADDING, PADDING));
+        this.header = header;
+        this.stepIngredientsOverlayTable = stepIngredientsOverlayTable;
+        this.futureRawIngredientsOverlayTable = futureRawIngredientsOverlayTable;
 
-		// Gap between panel items
-		panelComponent.setGap(new Point(0, ComponentConstants.STANDARD_BORDER));
-	}
+        // Padding
+        panelComponent.setBorder(new Rectangle(PADDING, PADDING, PADDING, PADDING));
 
-	@Override
-	public Dimension render(Graphics2D graphics)
-	{
-		// Header
+        // Gap between panel items
+        panelComponent.setGap(new Point(0, ComponentConstants.STANDARD_BORDER));
+    }
 
-		String headerText = "Step " + header.stepNum + "/" + header.totalSteps + ": " +
-			header.instruction;
+    @Override
+    public Dimension render(Graphics2D graphics) {
+        // Header
 
-		LineComponent headerComponent = LineComponent.builder().left(headerText).build();
-		panelComponent.getChildren().add(headerComponent);
+        String headerText = "Step " + header.stepNum + "/" + header.totalSteps + ": " +
+                header.instruction;
 
-		// Overlay tables
+        LineComponent headerComponent = LineComponent.builder().left(headerText).build();
+        panelComponent.getChildren().add(headerComponent);
 
-		renderOverlayTable(stepIngredientsOverlayTable, "Current Step");
+        // Overlay tables
 
-		if (futureRawIngredientsOverlayTable.size() > 0)
-		{
-			// Only render future ingredients if there are any left
-			renderOverlayTable(futureRawIngredientsOverlayTable, "Needed Later");
-		}
+        renderOverlayTable(stepIngredientsOverlayTable, "Current Step");
 
-		return super.render(graphics);
-	}
+        if (futureRawIngredientsOverlayTable.size() > 0) {
+            // Only render future ingredients if there are any left
+            renderOverlayTable(futureRawIngredientsOverlayTable, "Needed Later");
+        }
 
-	private void renderOverlayTable(ArrayList<OverlayTableEntry> overlayTable, String title)
-	{
-		// Table header
+        return super.render(graphics);
+    }
 
-		TitleComponent titleComponent = TitleComponent.builder().text(title).build();
-		panelComponent.getChildren().add(titleComponent);
+    private void renderOverlayTable(ArrayList<OverlayTableEntry> overlayTable, String title) {
+        // Table header
 
-		// Table contents
+        TitleComponent titleComponent = TitleComponent.builder().text(title).build();
+        panelComponent.getChildren().add(titleComponent);
 
-		for (OverlayTableEntry tableEntry : overlayTable)
-		{
-			Color ingredientColor;
-			if (tableEntry.getInventoryCount() >= tableEntry.getRequiredCount())
-			{
-				ingredientColor = Color.GREEN;
-			}
-			else if (tableEntry.getInventoryCount() == 0)
-			{
-				ingredientColor = Color.RED;
-			}
-			else
-			{
-				ingredientColor = Color.YELLOW;
-			}
+        // Table contents
 
-			LineComponent ingredientRow = LineComponent.builder()
-				.left(tableEntry.getItemName())
-				.leftColor(ingredientColor)
-				.right(tableEntry.getInventoryCount() + "/" + tableEntry.getRequiredCount())
-				.rightColor(ingredientColor)
-				.build();
-			panelComponent.getChildren().add(ingredientRow);
-		}
-	}
+        for (OverlayTableEntry tableEntry : overlayTable) {
+            Color ingredientColor;
+            if (tableEntry.getInventoryCount() >= tableEntry.getRequiredCount()) {
+                ingredientColor = Color.GREEN;
+            } else if (tableEntry.getInventoryCount() == 0) {
+                ingredientColor = Color.RED;
+            } else {
+                ingredientColor = Color.YELLOW;
+            }
+
+            LineComponent ingredientRow = LineComponent.builder()
+                                                       .left(tableEntry.getItemName())
+                                                       .leftColor(ingredientColor)
+                                                       .right(tableEntry.getInventoryCount() + "/" + tableEntry.getRequiredCount())
+                                                       .rightColor(ingredientColor)
+                                                       .build();
+            panelComponent.getChildren().add(ingredientRow);
+        }
+    }
 }
