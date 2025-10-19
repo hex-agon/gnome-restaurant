@@ -27,30 +27,24 @@
 package io.github.mmagicala.gnomeRestaurant;
 
 import com.google.inject.Provides;
+import io.github.mmagicala.gnomeRestaurant.order.Customer;
 import io.github.mmagicala.gnomeRestaurant.order.OrderDifficulty;
-import io.github.mmagicala.gnomeRestaurant.order.OrderRecipient;
 import io.github.mmagicala.gnomeRestaurant.overlay.GnomeRestaurantOverlay;
 import io.github.mmagicala.gnomeRestaurant.overlay.OverlayHeader;
 import io.github.mmagicala.gnomeRestaurant.overlay.OverlayTableEntry;
 import io.github.mmagicala.gnomeRestaurant.recipe.Ingredient;
-import io.github.mmagicala.gnomeRestaurant.recipe.Recipe;
-import net.runelite.api.ChatMessageType;
+import io.github.mmagicala.gnomeRestaurant.recipe.Order;
 import net.runelite.api.Client;
 import net.runelite.api.ItemContainer;
-import net.runelite.api.gameval.InventoryID;
-import net.runelite.api.gameval.ItemID;
 import net.runelite.api.NPC;
-import net.runelite.api.events.CommandExecuted;
-import net.runelite.api.events.GameTick;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
 import net.runelite.api.events.VarbitChanged;
-import net.runelite.api.gameval.InterfaceID;
-import net.runelite.api.gameval.InterfaceID.ChatLeft;
+import net.runelite.api.gameval.InventoryID;
+import net.runelite.api.gameval.ItemID;
+import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.callback.ClientThread;
-import net.runelite.client.chat.ChatMessageManager;
-import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -64,22 +58,18 @@ import net.runelite.client.ui.overlay.infobox.Timer;
 import net.runelite.client.ui.overlay.worldmap.WorldMapPoint;
 import net.runelite.client.ui.overlay.worldmap.WorldMapPointManager;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Named;
-import java.security.InvalidParameterException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-@PluginDescriptor(
-        name = "Gnome Restaurant"
-)
+@PluginDescriptor(name = "Gnome Restaurant")
 public class GnomeRestaurantPlugin extends Plugin {
 
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(GnomeRestaurantPlugin.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GnomeRestaurantPlugin.class);
+
     @Inject
     private Client client;
 
@@ -96,9 +86,6 @@ public class GnomeRestaurantPlugin extends Plugin {
     private ItemManager itemManager;
 
     @Inject
-    private ChatMessageManager chatMessageManager;
-
-    @Inject
     private ClientThread clientThread;
 
     @Inject
@@ -112,20 +99,13 @@ public class GnomeRestaurantPlugin extends Plugin {
 
     private String tooltipText;
 
-    // Flags
-
-    @Inject
-    @Named("developerMode")
-    boolean developerMode;
-
-    private static final int VARBIT_IS_DELIVERING = 2478;
-
-    private boolean isDelayed = false;
+    private boolean refusedHardOrder = false;
+    private boolean queuedUpdate = false;
 
     // Current order information
 
-    private Recipe recipe;
-    private OrderRecipient recipient;
+    private Order order;
+    private Customer customer;
     private int stepIdx;
 
     // Overlay
@@ -134,21 +114,12 @@ public class GnomeRestaurantPlugin extends Plugin {
     private final List<OverlayTableEntry> stepIngredientsOverlayTable = new ArrayList<>();
     private final List<OverlayTableEntry> nextRawIngredientsOverlayTable = new ArrayList<>();
 
-    // Gianne jr. dialogue
-
-    private static final Pattern DELIVERY_START_PATTERN = Pattern.compile("([\\w .]+) wants (?:some|a) ([\\w ]+)");
-    private static final String EASY_DELIVERY_CANCEL_TEXT = "Fine, your loss. If you want another easy job one come " +
-            "back in five minutes and maybe I'll be able to find you one.";
-    private static final String HARD_DELIVERY_CANCEL_TEXT = "Fine, your loss. I may have an easier job for you, since" +
-            " you chickened out of that one, If you want another hard one come back in five minutes and maybe I'll be" +
-            " able to find you a something.";
-
     public OverlayHeader overlayHeader() {
         return overlayHeader;
     }
 
     @Override
-    protected void shutDown() throws Exception {
+    protected void shutDown() {
         resetPlugin();
     }
 
@@ -160,75 +131,40 @@ public class GnomeRestaurantPlugin extends Plugin {
 
         stepIdx = 0;
 
-        isDelayed = false;
+        refusedHardOrder = false;
 
-        recipe = null;
-        recipient = null;
+        order = null;
+        customer = null;
     }
 
-    // Monitor dialogue for Gianne jnr's new order
-    @Subscribe
-    public void onGameTick(GameTick event) {
-        boolean isDialogueOpen = client.getWidget(InterfaceID.ChatLeft.NAME) != null;
-        if (!isDialogueOpen) {
-            return;
-        }
-
-        boolean isTalkingToGianneJnr = client.getWidget(InterfaceID.ChatLeft.NAME).getText().equals("Gianne jnr.");
-        if (!isTalkingToGianneJnr) {
-            return;
-        }
-
-        String dialog = client.getWidget(ChatLeft.TEXT).getText();
-        // Treat dialogue as a single line
-        dialog = dialog.replace("<br>", " ");
-        Matcher matcher = DELIVERY_START_PATTERN.matcher(dialog);
-
-        if (matcher.find()) {
-            final String matchedRecipient = matcher.group(1);
-            final String matchedRecipe = matcher.group(2);
-
-            if (recipient != null && recipient.getAddressedName().equals(matchedRecipient)
-                    && recipe != null && recipe.getName().equals(matchedRecipe)) {
-                // We are still viewing the same delivery as is already recorded
-                return;
-            }
-
-            // Configure plugin
-            resetPlugin();
-            startPlugin(matchedRecipient, matchedRecipe);
-        }
-
-        boolean playerCancelledOrder = dialog.contains(EASY_DELIVERY_CANCEL_TEXT) ||
-                dialog.contains(HARD_DELIVERY_CANCEL_TEXT);
-
-        if (config.showDelayTimer() && !isDelayed && playerCancelledOrder) {
-            cancelOrder();
-        }
-    }
-
-    private void cancelOrder() {
+    private void onRefusedHardOrder() {
         resetPlugin();
 
-        setupDelayTimer();
-        isDelayed = true;
+        setupRefusedOrderTimer();
+        refusedHardOrder = true;
     }
 
-    private void startPlugin(String recipientName, String recipeName) {
-        parseOrder(recipientName, recipeName);
+    private void updateOrder() {
         updateStep();
         setupUI();
     }
 
-    private void setupDelayTimer() {
-        timer = new Timer(5, ChronoUnit.MINUTES, itemManager.getImage(ItemID.ALUFT_DELIVERY_BOX), this);
-        timer.setTooltip("Cannot place an order at this time");
-        infoBoxManager.addInfoBox(timer);
+    private void queueUpdateOrder() {
+        if (queuedUpdate) {
+            return;
+        }
+        clientThread.invokeAtTickEnd(() -> {
+            LOGGER.debug("Updating ui for order={}, customer={}", order, customer);
+            updateOrder();
+            queuedUpdate = false;
+        });
+        queuedUpdate = true;
     }
 
-    private void parseOrder(String addressedName, String recipeName) {
-        recipe = Recipe.getRecipe(recipeName);
-        recipient = OrderRecipient.getRecipient(addressedName);
+    private void setupRefusedOrderTimer() {
+        timer = new Timer(5, ChronoUnit.MINUTES, itemManager.getImage(ItemID.ALUFT_DELIVERY_BOX), this);
+        timer.setTooltip("Refused hard order cooldown");
+        infoBoxManager.addInfoBox(timer);
     }
 
     /**
@@ -240,19 +176,14 @@ public class GnomeRestaurantPlugin extends Plugin {
 
         int newStepIdx = 0;
 
-        for (int i = 0; i < recipe.getSteps().size() - 1; i++) {
-            int producedId = recipe.getSteps().get(i).getProducedItemId();
+        for (int i = 0; i < order.getSteps().size() - 1; i++) {
+            int producedId = order.getSteps().get(i).getProducedItemId();
             if (getItemCount(producedId) > 0) {
                 // We produced the item for this step
                 newStepIdx = i + 1;
             }
         }
-
-        boolean stepUpdated = false;
-
-        if (newStepIdx != stepIdx) {
-            stepUpdated = true;
-        }
+        boolean stepUpdated = newStepIdx != stepIdx;
 
         stepIdx = newStepIdx;
         return stepUpdated;
@@ -270,7 +201,7 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void setupUI() {
-        tooltipText = "Deliver " + recipe.getName() + " to " + recipient.getInGameName();
+        tooltipText = "Deliver " + order.getName() + " to " + customer.getName();
 
         if (config.showOverlay()) {
             setupOverlay();
@@ -292,7 +223,9 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void setupOverlay() {
-        // Overlay contents
+        if (overlay != null) {
+            removeOverlay();
+        }
         updateOverlayHeader();
         rebuildOverlayTables();
 
@@ -302,16 +235,20 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void setupOrderTimer() {
+        LOGGER.debug("Setting up order timer");
         int numSecondsLeft;
 
-        if (recipient.getDifficulty() == OrderDifficulty.HARD) {
+        if (customer.getDifficulty() == OrderDifficulty.HARD) {
             numSecondsLeft = 660;
         } else {
             numSecondsLeft = 360;
         }
 
-        timer = new Timer(numSecondsLeft, ChronoUnit.SECONDS, itemManager.getImage(recipe.getItemId()),
-                this);
+        if (timer != null) {
+            LOGGER.debug("Removing previous order timer");
+            removeTimer();
+        }
+        timer = new Timer(numSecondsLeft, ChronoUnit.SECONDS, itemManager.getImage(order.getItemId()), this);
         timer.setTooltip(tooltipText);
 
         infoBoxManager.addInfoBox(timer);
@@ -321,13 +258,17 @@ public class GnomeRestaurantPlugin extends Plugin {
         if (!markNPCInCache()) {
             // NPC not in sight
             // Show hint arrow in mini map instead
-            client.setHintArrow(recipient.getLocation());
+            client.setHintArrow(customer.getLocation());
         }
     }
 
     private void showWorldMapPoint() {
-        worldMapPoint = WorldMapPoint.builder().name(recipient.getInGameName())
-                                     .worldPoint(recipient.getLocation())
+        if (worldMapPoint != null) {
+            removeWorldMapPoint();
+        }
+
+        worldMapPoint = WorldMapPoint.builder().name(customer.getName())
+                                     .worldPoint(customer.getLocation())
                                      .image(itemManager.getImage(ItemID.ALUFT_DELIVERY_BOX))
                                      .build();
         worldMapPoint.setSnapToEdge(true);
@@ -349,7 +290,7 @@ public class GnomeRestaurantPlugin extends Plugin {
                 continue;
             }
 
-            if (npc.getName().equals(recipient.getInGameName())) {
+            if (npc.getName().equals(customer.getName())) {
                 client.setHintArrow(npc);
                 return true;
             }
@@ -367,7 +308,7 @@ public class GnomeRestaurantPlugin extends Plugin {
             return;
         }
 
-        if (recipe != null && event.getNpc().getName().equals(recipient.getInGameName()) && config.showHintArrow()) {
+        if (order != null && event.getNpc().getName().equals(customer.getName()) && config.showHintArrow()) {
             client.setHintArrow(event.getNpc());
         }
     }
@@ -380,49 +321,94 @@ public class GnomeRestaurantPlugin extends Plugin {
             return;
         }
 
-        if (recipe != null && event.getNpc().getName().equals(recipient.getInGameName()) && config.showHintArrow()) {
-            client.setHintArrow(recipient.getLocation());
+        if (order != null && event.getNpc().getName().equals(customer.getName()) && config.showHintArrow()) {
+            client.setHintArrow(customer.getLocation());
         }
     }
 
     @Subscribe
     public void onVarbitChanged(VarbitChanged event) {
-        if (recipe != null && client.getVarbitValue(VARBIT_IS_DELIVERING) == 0) {
-            // Delivery successful or failed
+        switch (event.getVarbitId()) {
+            case VarbitID.ALUFT_MINIGAME_STARTED:
+                onAluftMinigameStarted(event.getValue());
+                break;
+            case VarbitID.ALUFT_CURRENT_CUSTOMER:
+                onAluftCustomerChanged(event.getValue());
+                break;
+            case VarbitID.ALUFT_CURRENT_ORDER:
+                onAluftOrderChanged(event.getValue());
+                break;
+            case VarbitID.ALUFT_REFUSED_HARD_ORDER:
+                onAluftRefusedOrderChanged(event.getValue());
+                break;
+        }
+    }
+
+    private void onAluftMinigameStarted(int value) {
+        LOGGER.debug("Aluft Minigame started is {}", value);
+
+        if (value == 0) {
             resetPlugin();
+        }
+    }
+
+    private void onAluftCustomerChanged(int customerId) {
+        if (customerId == 0) {
+            customer = null;
+            return;
+        }
+        customer = Customer.forId(customerId);
+        LOGGER.debug("Customer is now {}", customer);
+        queueUpdateOrder();
+    }
+
+    private void onAluftOrderChanged(int orderId) {
+        if (orderId == 0) {
+            order = null;
+            return;
+        }
+        order = Order.forId(orderId);
+        LOGGER.debug("Order is now {}", order);
+        queueUpdateOrder();
+    }
+
+    private void onAluftRefusedOrderChanged(int value) {
+        if (value == 1) {
+            LOGGER.debug("Refused hard order, setting up timer");
+            onRefusedHardOrder();
         }
     }
 
     @Subscribe
     public void onItemContainerChanged(ItemContainerChanged event) {
-        if (overlay != null) {
-            if (event.getContainerId() != InventoryID.INV) {
-                return;
-            }
+        if (event.getContainerId() != InventoryID.INV) {
+            return;
+        }
+        if (order == null) {
+            return;
+        }
+        // Has player finished a step?
 
-            // Has player finished a step?
-
-            if (updateStep()) {
-                updateOverlayHeader();
-                rebuildOverlayTables();
-            } else {
-                updateOverlayTables();
-            }
+        if (updateStep()) {
+            updateOverlayHeader();
+            rebuildOverlayTables();
+        } else {
+            updateOverlayTables();
         }
     }
 
     private void updateOverlayHeader() {
-        var instruction = recipe.getSteps().get(stepIdx).getInstruction().getOverlayDirections();
-        overlayHeader = new OverlayHeader(instruction, stepIdx + 1, recipe.getSteps().size());
+        var instruction = order.getSteps().get(stepIdx).getInstruction().getOverlayDirections();
+        overlayHeader = new OverlayHeader(instruction, stepIdx + 1, order.getSteps().size());
     }
 
     private void rebuildOverlayTables() {
         clearOverlayTables();
 
-        List<Ingredient> stepIngredients = recipe.getSteps().get(stepIdx).getIngredients();
+        List<Ingredient> stepIngredients = order.getSteps().get(stepIdx).getIngredients();
         rebuildOverlayTable(stepIngredients, stepIngredientsOverlayTable);
 
-        List<Ingredient> nextRawIngredients = recipe.getNextRawIngredients(stepIdx);
+        List<Ingredient> nextRawIngredients = order.getNextRawIngredients(stepIdx);
         rebuildOverlayTable(nextRawIngredients, nextRawIngredientsOverlayTable);
     }
 
@@ -473,7 +459,7 @@ public class GnomeRestaurantPlugin extends Plugin {
      */
     @Subscribe
     public void onConfigChanged(ConfigChanged event) {
-        if (recipe != null) {
+        if (order != null) {
             if (event.getKey().equals(SHOW_ORDER_TIMER)) {
                 if (event.getNewValue().equals("false")) {
                     removeTimer();
@@ -502,7 +488,7 @@ public class GnomeRestaurantPlugin extends Plugin {
             if (!event.getGroup().equals("gnomerestaurant")) {
                 // This plugin's config has not changed
                 return;
-            } else if (event.getKey().equals(SHOW_DELAY_TIMER) && isDelayed) {
+            } else if (event.getKey().equals(SHOW_DELAY_TIMER) && refusedHardOrder) {
                 if (event.getNewValue().equals("false")) {
                     removeTimer();
                 }
@@ -531,83 +517,5 @@ public class GnomeRestaurantPlugin extends Plugin {
     private void clearOverlayTables() {
         stepIngredientsOverlayTable.clear();
         nextRawIngredientsOverlayTable.clear();
-    }
-
-    // Plugin testing
-
-    @Subscribe
-    public void onCommandExecuted(CommandExecuted commandExecuted) {
-        // Must be in developer mode to send command
-
-        if (!developerMode) {
-            return;
-        }
-
-        // Not the right command
-
-        if (!commandExecuted.getCommand().equals("gnome")) {
-            return;
-        }
-
-        // Invalid command usage
-
-        if (commandExecuted.getArguments().length < 1) {
-            printUsage();
-            return;
-        }
-
-        if (commandExecuted.getArguments()[0].equals("reset")) {
-            resetTestOrder();
-            return;
-        } else if (commandExecuted.getArguments()[0].equals("cancel")) {
-            cancelTestOrder();
-            return;
-        }
-
-        if (commandExecuted.getArguments().length < 2) {
-            printUsage();
-            return;
-        }
-
-        if (recipe != null) {
-            printChatMessage("Cannot test an order while another delivery is in progress");
-            return;
-        }
-
-        String recipientName = commandExecuted.getArguments()[0].replace("_", " ");
-        String recipeName = commandExecuted.getArguments()[1].replace("_", " ");
-
-        printChatMessage("Testing order with recipient: '" + recipientName + "' and recipe '" + recipeName + "'");
-
-        try {
-            startPlugin(recipientName, recipeName);
-        } catch (InvalidParameterException e) {
-            resetTestOrder();
-            printChatMessage("Error: InvalidParameterException caught: " + e.getMessage());
-        }
-
-        // Manually set varbit to simulate real order
-        client.setVarbitValue(client.getVarps(), VARBIT_IS_DELIVERING, 1);
-    }
-
-    private void cancelTestOrder() {
-        cancelOrder();
-        client.setVarbitValue(client.getVarps(), VARBIT_IS_DELIVERING, 0);
-        printChatMessage("Order cancelled");
-    }
-
-    private void resetTestOrder() {
-        resetPlugin();
-        client.setVarbitValue(client.getVarps(), VARBIT_IS_DELIVERING, 0);
-        printChatMessage("Plugin reset");
-    }
-
-    private void printUsage() {
-        printChatMessage("Usage '::gnome npc_addressed_name recipe_name'");
-        printChatMessage("Usage '::gnome reset'");
-    }
-
-    private void printChatMessage(String message) {
-        chatMessageManager.queue(QueuedMessage.builder().type(ChatMessageType.GAMEMESSAGE).value(message).build());
     }
 }

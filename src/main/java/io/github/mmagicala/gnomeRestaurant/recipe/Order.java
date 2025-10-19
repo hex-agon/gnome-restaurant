@@ -6,178 +6,9 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum Recipe {
+public enum Order {
 
-    WORM_HOLE("worm hole", createBakedRecipe(
-            BakedRecipeType.GNOMEBOWL,
-            List.of(
-                    new Ingredient(ItemID.KING_WORM, 4),
-                    new Ingredient(ItemID.ONION, 2),
-                    new Ingredient(ItemID.GNOME_SPICE, 1)
-            ),
-            ItemID.ALUFT_HALF_BAKED_WORM_HOLE,
-            ItemID.ALUFT_BAKED_WORM_HOLE,
-            new Ingredient(ItemID.EQUA_LEAVES, 1),
-            ItemID.WORM_HOLE)
-    ),
-
-    VEGETABLE_BALL("vegetable ball", createBakedRecipe(
-            BakedRecipeType.GNOMEBOWL,
-            List.of(
-                    new Ingredient(ItemID.POTATO, 2),
-                    new Ingredient(ItemID.ONION, 2),
-                    new Ingredient(ItemID.GNOME_SPICE, 1)
-            ),
-            ItemID.ALUFT_HALF_BAKED_VEG_BALL,
-            ItemID.ALUFT_BAKED_VEG_BALL,
-            new Ingredient(ItemID.EQUA_LEAVES, 1),
-            ItemID.VEG_BALL)
-    ),
-
-    TANGLED_TOADS_LEGS("tangled toads legs", createBakedRecipe(
-            BakedRecipeType.GNOMEBOWL,
-            List.of(
-                    new Ingredient(ItemID.TOADS_LEGS, 4),
-                    new Ingredient(ItemID.GNOME_SPICE, 1),
-                    new Ingredient(ItemID.CHEESE, 2),
-                    new Ingredient(ItemID.DWELLBERRIES, 1),
-                    new Ingredient(ItemID.EQUA_LEAVES, 2)
-            ),
-            ItemID.ALUFT_HALF_BAKED_TANGLED_TOADS_LEGS,
-            ItemID.TANGLED_TOADS_LEGS)
-    ),
-
-    CHOCOLATE_BOMB("chocolate bomb", createBakedRecipe(
-            BakedRecipeType.GNOMEBOWL,
-            List.of(
-                    new Ingredient(ItemID.CHOCOLATE_BAR, 4),
-                    new Ingredient(ItemID.EQUA_LEAVES, 1)
-            ),
-            ItemID.ALUFT_HALF_BAKED_CHOC_BOMB,
-            ItemID.ALUFT_BAKED_CHOC_BOMB,
-            List.of(
-                    new Ingredient(ItemID.CHOCOLATE_DUST, 1),
-                    new Ingredient(ItemID.POT_OF_CREAM, 2)
-            ),
-            ItemID.CHOCOLATE_BOMB)
-    ),
-
-    FRUIT_BATTA("fruit batta", createBakedRecipe(
-            BakedRecipeType.BATTA,
-            List.of(
-                    new Ingredient(ItemID.EQUA_LEAVES, 4),
-                    new Ingredient(ItemID.LIME_CHUNKS, 1),
-                    new Ingredient(ItemID.ORANGE_CHUNKS, 1),
-                    new Ingredient(ItemID.PINEAPPLE_CHUNKS, 1)
-            ),
-            ItemID.ALUFT_HALF_MADE_FRUIT_BATTA,
-            ItemID.ALUFT_BAKED_FRUIT_BATTA,
-            new Ingredient(ItemID.GNOME_SPICE, 1),
-            ItemID.FRUIT_BATTA)
-    ),
-
-    TOAD_BATTA("toad batta", createBakedRecipe(
-            BakedRecipeType.BATTA,
-            List.of(
-                    new Ingredient(ItemID.EQUA_LEAVES, 1),
-                    new Ingredient(ItemID.GNOME_SPICE, 1),
-                    new Ingredient(ItemID.CHEESE, 1),
-                    new Ingredient(ItemID.TOADS_LEGS, 1)
-            ),
-            ItemID.ALUFT_HALF_MADE_TOAD_BATTA,
-            ItemID.TOAD_BATTA)
-    ),
-
-    WORM_BATTA("worm batta", createBakedRecipe(
-            BakedRecipeType.BATTA,
-            List.of(
-                    new Ingredient(ItemID.KING_WORM, 1),
-                    new Ingredient(ItemID.CHEESE, 1),
-                    new Ingredient(ItemID.GNOME_SPICE, 1)
-            ),
-            ItemID.ALUFT_HALF_MADE_WORM_BATTA,
-            ItemID.ALUFT_BAKED_WORM_BATTA,
-            new Ingredient(ItemID.EQUA_LEAVES, 1),
-            ItemID.WORM_BATTA)
-    ),
-
-    VEGETABLE_BATTA("vegetable batta", createBakedRecipe(
-            BakedRecipeType.BATTA,
-            List.of(
-                    new Ingredient(ItemID.TOMATO, 2),
-                    new Ingredient(ItemID.DWELLBERRIES, 1),
-                    new Ingredient(ItemID.ONION, 1),
-                    new Ingredient(ItemID.CHEESE, 1),
-                    new Ingredient(ItemID.CABBAGE, 1)
-            ),
-            ItemID.ALUFT_HALF_MADE_VEG_BATTA,
-            ItemID.ALUFT_BAKED_VEG_BATTA,
-            new Ingredient(ItemID.EQUA_LEAVES, 1),
-            ItemID.VEGETABLE_BATTA)
-    ),
-
-    CHEESE_AND_TOMATO_BATTA("cheese and tomato batta", createBakedRecipe(
-            BakedRecipeType.BATTA,
-            List.of(
-                    new Ingredient(ItemID.CHEESE, 1),
-                    new Ingredient(ItemID.TOMATO, 1)
-            ),
-            ItemID.ALUFT_HALF_MADE_CHEESE_TOM_BATTA,
-            ItemID.ALUFT_BAKED_CHEESE_TOM_BATTA,
-            new Ingredient(ItemID.EQUA_LEAVES, 1),
-            ItemID.CHEESE_TOM_BATTA)
-    ),
-
-    CHOC_CHIP_CRUNCHIES("choc chip crunchies", createBakedRecipe(
-            BakedRecipeType.CRUNCHIES,
-            List.of(
-                    new Ingredient(ItemID.CHOCOLATE_BAR, 2),
-                    new Ingredient(ItemID.GNOME_SPICE, 1)
-            ),
-            ItemID.ALUFT_HALF_BAKED_CHOC_CHIP_CRUNCHY,
-            ItemID.ALUFT_BAKED_CHOC_CHIP_CRUNCHY,
-            new Ingredient(ItemID.CHOCOLATE_DUST, 1),
-            ItemID.CHOCCHIP_CRUNCHIES)
-    ),
-
-    SPICY_CRUNCHIES("spicy crunchies", createBakedRecipe(
-            BakedRecipeType.CRUNCHIES,
-            List.of(
-                    new Ingredient(ItemID.EQUA_LEAVES, 2),
-                    new Ingredient(ItemID.GNOME_SPICE, 1)
-            ),
-            ItemID.ALUFT_HALF_BAKED_SPICY_CRUNCHY,
-            ItemID.ALUFT_BAKED_SPICY_CRUNCHY,
-            new Ingredient(ItemID.GNOME_SPICE, 1),
-            ItemID.SPICY_CRUNCHIES)
-    ),
-
-    TOAD_CRUNCHIES("toad crunchies", createBakedRecipe(
-            BakedRecipeType.CRUNCHIES,
-            List.of(
-                    new Ingredient(ItemID.TOADS_LEGS, 2),
-                    new Ingredient(ItemID.GNOME_SPICE, 1)
-            ),
-            ItemID.ALUFT_HALF_BAKED_TOAD_CRUNCHY,
-            ItemID.ALUFT_BAKED_TOAD_CRUNCHY,
-            new Ingredient(ItemID.EQUA_LEAVES, 1),
-            ItemID.TOAD_CRUNCHIES)
-    ),
-
-    WORM_CRUNCHIES("worm crunchies", createBakedRecipe(
-            BakedRecipeType.CRUNCHIES,
-            List.of(
-                    new Ingredient(ItemID.KING_WORM, 2),
-                    new Ingredient(ItemID.GNOME_SPICE, 1),
-                    new Ingredient(ItemID.EQUA_LEAVES, 1)
-            ),
-            ItemID.ALUFT_HALF_BAKED_WORM_CRUNCHY,
-            ItemID.ALUFT_BAKED_WORM_CRUNCHY,
-            new Ingredient(ItemID.GNOME_SPICE, 1),
-            ItemID.WORM_CRUNCHIES)
-    ),
-
-    FRUIT_BLAST("fruit blast", createCocktailRecipe(
+    FRUIT_BLAST(1, "Fruit Blast", createCocktailRecipe(
             List.of(
                     new Ingredient(ItemID.PINEAPPLE, 1),
                     new Ingredient(ItemID.LEMON, 1),
@@ -188,7 +19,7 @@ public enum Recipe {
             ItemID.FRUIT_BLAST)
     ),
 
-    PINEAPPLE_PUNCH("pineapple punch", createCocktailRecipe(
+    PINEAPPLE_PUNCH(2, "Pineapple Punch", createCocktailRecipe(
             List.of(
                     new Ingredient(ItemID.PINEAPPLE, 2),
                     new Ingredient(ItemID.LEMON, 1),
@@ -203,7 +34,56 @@ public enum Recipe {
             ItemID.PINEAPPLE_PUNCH)
     ),
 
-    WIZARD_BLIZZARD("wizard blizzard", createCocktailRecipe(
+    TOAD_CRUNCHIES(3, "Toad Crunchies", createBakedRecipe(
+            BakedRecipeType.CRUNCHIES,
+            List.of(
+                    new Ingredient(ItemID.TOADS_LEGS, 2),
+                    new Ingredient(ItemID.GNOME_SPICE, 1)
+            ),
+            ItemID.ALUFT_HALF_BAKED_TOAD_CRUNCHY,
+            ItemID.ALUFT_BAKED_TOAD_CRUNCHY,
+            new Ingredient(ItemID.EQUA_LEAVES, 1),
+            ItemID.TOAD_CRUNCHIES)
+    ),
+
+    SPICY_CRUNCHIES(4, "Spicy Crunchies", createBakedRecipe(
+            BakedRecipeType.CRUNCHIES,
+            List.of(
+                    new Ingredient(ItemID.EQUA_LEAVES, 2),
+                    new Ingredient(ItemID.GNOME_SPICE, 1)
+            ),
+            ItemID.ALUFT_HALF_BAKED_SPICY_CRUNCHY,
+            ItemID.ALUFT_BAKED_SPICY_CRUNCHY,
+            new Ingredient(ItemID.GNOME_SPICE, 1),
+            ItemID.SPICY_CRUNCHIES)
+    ),
+
+    WORM_CRUNCHIES(5, "Worm Crunchies", createBakedRecipe(
+            BakedRecipeType.CRUNCHIES,
+            List.of(
+                    new Ingredient(ItemID.KING_WORM, 2),
+                    new Ingredient(ItemID.GNOME_SPICE, 1),
+                    new Ingredient(ItemID.EQUA_LEAVES, 1)
+            ),
+            ItemID.ALUFT_HALF_BAKED_WORM_CRUNCHY,
+            ItemID.ALUFT_BAKED_WORM_CRUNCHY,
+            new Ingredient(ItemID.GNOME_SPICE, 1),
+            ItemID.WORM_CRUNCHIES)
+    ),
+
+    CHOC_CHIP_CRUNCHIES(6, "Choc Chip Crunchies", createBakedRecipe(
+            BakedRecipeType.CRUNCHIES,
+            List.of(
+                    new Ingredient(ItemID.CHOCOLATE_BAR, 2),
+                    new Ingredient(ItemID.GNOME_SPICE, 1)
+            ),
+            ItemID.ALUFT_HALF_BAKED_CHOC_CHIP_CRUNCHY,
+            ItemID.ALUFT_BAKED_CHOC_CHIP_CRUNCHY,
+            new Ingredient(ItemID.CHOCOLATE_DUST, 1),
+            ItemID.CHOCCHIP_CRUNCHIES)
+    ),
+
+    WIZARD_BLIZZARD(7, "Wizard Blizzard", createCocktailRecipe(
             List.of(
                     new Ingredient(ItemID.VODKA, 2),
                     new Ingredient(ItemID.GIN, 1),
@@ -219,7 +99,7 @@ public enum Recipe {
             ItemID.WIZARD_BLIZZARD)
     ),
 
-    SHORT_GREEN_GUY("short green guy", createCocktailRecipe(
+    SHORT_GREEN_GUY(8, "Short Green Guy", createCocktailRecipe(
             List.of(
                     new Ingredient(ItemID.VODKA, 1),
                     new Ingredient(ItemID.LIME, 3)
@@ -229,13 +109,106 @@ public enum Recipe {
                     new Ingredient(ItemID.LIME_SLICES, 1),
                     new Ingredient(ItemID.EQUA_LEAVES, 1)
             ),
-            ItemID.ALUFT_SGG)
+            ItemID.SGG)
     ),
 
-    DRUNK_DRAGON("drunk dragon", createDrunkDragonRecipe()),
-    CHOCOLATE_SATURDAY("chocolate saturday", createChocSaturdayRecipe()),
+    FRUIT_BATTA(9, "Fruit Batta", createBakedRecipe(
+            BakedRecipeType.BATTA,
+            List.of(
+                    new Ingredient(ItemID.EQUA_LEAVES, 4),
+                    new Ingredient(ItemID.LIME_CHUNKS, 1),
+                    new Ingredient(ItemID.ORANGE_CHUNKS, 1),
+                    new Ingredient(ItemID.PINEAPPLE_CHUNKS, 1)
+            ),
+            ItemID.ALUFT_HALF_MADE_FRUIT_BATTA,
+            ItemID.ALUFT_BAKED_FRUIT_BATTA,
+            new Ingredient(ItemID.GNOME_SPICE, 1),
+            ItemID.FRUIT_BATTA)
+    ),
 
-    BLURBERRY_SPECIAL("Blurberry special", createCocktailRecipe(
+    TOAD_BATTA(10, "Toad Batta", createBakedRecipe(
+            BakedRecipeType.BATTA,
+            List.of(
+                    new Ingredient(ItemID.EQUA_LEAVES, 1),
+                    new Ingredient(ItemID.GNOME_SPICE, 1),
+                    new Ingredient(ItemID.CHEESE, 1),
+                    new Ingredient(ItemID.TOADS_LEGS, 1)
+            ),
+            ItemID.ALUFT_HALF_MADE_TOAD_BATTA,
+            ItemID.TOAD_BATTA)
+    ),
+
+    WORM_BATTA(11, "Worm Batta", createBakedRecipe(
+            BakedRecipeType.BATTA,
+            List.of(
+                    new Ingredient(ItemID.KING_WORM, 1),
+                    new Ingredient(ItemID.CHEESE, 1),
+                    new Ingredient(ItemID.GNOME_SPICE, 1)
+            ),
+            ItemID.ALUFT_HALF_MADE_WORM_BATTA,
+            ItemID.ALUFT_BAKED_WORM_BATTA,
+            new Ingredient(ItemID.EQUA_LEAVES, 1),
+            ItemID.WORM_BATTA)
+    ),
+
+    VEGETABLE_BATTA(12, "Vegetable Batta", createBakedRecipe(
+            BakedRecipeType.BATTA,
+            List.of(
+                    new Ingredient(ItemID.TOMATO, 2),
+                    new Ingredient(ItemID.DWELLBERRIES, 1),
+                    new Ingredient(ItemID.ONION, 1),
+                    new Ingredient(ItemID.CHEESE, 1),
+                    new Ingredient(ItemID.CABBAGE, 1)
+            ),
+            ItemID.ALUFT_HALF_MADE_VEG_BATTA,
+            ItemID.ALUFT_BAKED_VEG_BATTA,
+            new Ingredient(ItemID.EQUA_LEAVES, 1),
+            ItemID.VEGETABLE_BATTA)
+    ),
+
+    CHEESE_AND_TOMATO_BATTA(13, "Cheese and Tomato Batta", createBakedRecipe(
+            BakedRecipeType.BATTA,
+            List.of(
+                    new Ingredient(ItemID.CHEESE, 1),
+                    new Ingredient(ItemID.TOMATO, 1)
+            ),
+            ItemID.ALUFT_HALF_MADE_CHEESE_TOM_BATTA,
+            ItemID.ALUFT_BAKED_CHEESE_TOM_BATTA,
+            new Ingredient(ItemID.EQUA_LEAVES, 1),
+            ItemID.CHEESE_TOM_BATTA)
+    ),
+
+    WORM_HOLE(14, "Worm Hole", createBakedRecipe(
+            BakedRecipeType.GNOMEBOWL,
+            List.of(
+                    new Ingredient(ItemID.KING_WORM, 4),
+                    new Ingredient(ItemID.ONION, 2),
+                    new Ingredient(ItemID.GNOME_SPICE, 1)
+            ),
+            ItemID.ALUFT_HALF_BAKED_WORM_HOLE,
+            ItemID.ALUFT_BAKED_WORM_HOLE,
+            new Ingredient(ItemID.EQUA_LEAVES, 1),
+            ItemID.WORM_HOLE)
+    ),
+
+    DRUNK_DRAGON(15, "Drunk Dragon", createDrunkDragonRecipe()),
+
+    VEGETABLE_BALL(16, "Vegetable Ball", createBakedRecipe(
+            BakedRecipeType.GNOMEBOWL,
+            List.of(
+                    new Ingredient(ItemID.POTATO, 2),
+                    new Ingredient(ItemID.ONION, 2),
+                    new Ingredient(ItemID.GNOME_SPICE, 1)
+            ),
+            ItemID.ALUFT_HALF_BAKED_VEG_BALL,
+            ItemID.ALUFT_BAKED_VEG_BALL,
+            new Ingredient(ItemID.EQUA_LEAVES, 1),
+            ItemID.VEG_BALL)
+    ),
+
+    CHOCOLATE_SATURDAY(17, "Chocolate Saturday", createChocSaturdayRecipe()),
+
+    BLURBERRY_SPECIAL(18, "Blurberry Special", createCocktailRecipe(
             List.of(
                     new Ingredient(ItemID.VODKA, 1),
                     new Ingredient(ItemID.BRANDY, 1),
@@ -251,14 +224,44 @@ public enum Recipe {
                     new Ingredient(ItemID.LIME_SLICES, 1)
             ),
             ItemID.BLURBERRY_SPECIAL)
+    ),
+
+    TANGLED_TOADS_LEGS(19, "Tangled Toads Legs", createBakedRecipe(
+            BakedRecipeType.GNOMEBOWL,
+            List.of(
+                    new Ingredient(ItemID.TOADS_LEGS, 4),
+                    new Ingredient(ItemID.GNOME_SPICE, 1),
+                    new Ingredient(ItemID.CHEESE, 2),
+                    new Ingredient(ItemID.DWELLBERRIES, 1),
+                    new Ingredient(ItemID.EQUA_LEAVES, 2)
+            ),
+            ItemID.ALUFT_HALF_BAKED_TANGLED_TOADS_LEGS,
+            ItemID.TANGLED_TOADS_LEGS)
+    ),
+
+    CHOCOLATE_BOMB(20, "Chocolate Bomb", createBakedRecipe(
+            BakedRecipeType.GNOMEBOWL,
+            List.of(
+                    new Ingredient(ItemID.CHOCOLATE_BAR, 4),
+                    new Ingredient(ItemID.EQUA_LEAVES, 1)
+            ),
+            ItemID.ALUFT_HALF_BAKED_CHOC_BOMB,
+            ItemID.ALUFT_BAKED_CHOC_BOMB,
+            List.of(
+                    new Ingredient(ItemID.CHOCOLATE_DUST, 1),
+                    new Ingredient(ItemID.POT_OF_CREAM, 2)
+            ),
+            ItemID.CHOCOLATE_BOMB)
     );
 
     private static final int NO_PRODUCED_ITEM_ID = -1;
 
+    private final int id;
     private final String name;
     private final List<RecipeStep> steps;
 
-    Recipe(String name, List<RecipeStep> steps) {
+    Order(int id, String name, List<RecipeStep> steps) {
+        this.id = id;
         this.name = name;
         this.steps = steps;
     }
@@ -296,17 +299,13 @@ public enum Recipe {
         return this.steps;
     }
 
-    /**
-     * Get recipe by name
-     **/
-    public static Recipe getRecipe(String name) {
-        for (Recipe recipe : values()) {
-            if (recipe.name.equals(name)) {
-                return recipe;
+    public static Order forId(int id) {
+        for (var order : values()) {
+            if (order.id == id) {
+                return order;
             }
         }
-
-        throw new InvalidParameterException("Recipe with name " + name + " not found");
+        throw new InvalidParameterException("Order with id " + id + " not found");
     }
     // Cocktail recipe builders
 
