@@ -145,7 +145,7 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void updateOrder() {
-        updateStep();
+        updateOrderStep();
         setupUI();
     }
 
@@ -169,10 +169,10 @@ public class GnomeRestaurantPlugin extends Plugin {
 
     /**
      * Update the step we are working on in the recipe
-     * Returns whether step has been updated or not
+     * Returns whether a step has been updated or not
      **/
-    private boolean updateStep() {
-        // Go from beginning of recipe to final item produced
+    private boolean updateOrderStep() {
+        // Go from the beginning of the recipe to the final item produced
 
         int newStepIdx = 0;
 
@@ -210,8 +210,6 @@ public class GnomeRestaurantPlugin extends Plugin {
         if (config.showOrderTimer()) {
             setupOrderTimer();
         }
-
-        // Draw hint arrow if we can immediately find the NPC
 
         if (config.showHintArrow()) {
             showHintArrow();
@@ -255,10 +253,10 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void showHintArrow() {
-        if (!markNPCInCache()) {
+        if (!setHintArrowToCustomer()) {
             // NPC not in sight
-            // Show hint arrow in mini map instead
-            client.setHintArrow(customer.getLocation());
+            // Show hint arrow in minimap instead
+            client.setHintArrow(customer.getLocation(client));
         }
     }
 
@@ -268,7 +266,7 @@ public class GnomeRestaurantPlugin extends Plugin {
         }
 
         worldMapPoint = WorldMapPoint.builder().name(customer.getName())
-                                     .worldPoint(customer.getLocation())
+                                     .worldPoint(customer.getLocation(client))
                                      .image(itemManager.getImage(ItemID.ALUFT_DELIVERY_BOX))
                                      .build();
         worldMapPoint.setSnapToEdge(true);
@@ -277,20 +275,11 @@ public class GnomeRestaurantPlugin extends Plugin {
         worldMapPointManager.add(worldMapPoint);
     }
 
-    /**
-     * Mark the recipient if they are in the surrounding area
-     *
-     * @return true if recipient was marked
-     */
-    private boolean markNPCInCache() {
-        List<NPC> npcs = client.getNpcs();
+    private boolean setHintArrowToCustomer() {
+        var npcs = client.getTopLevelWorldView().npcs();
 
         for (NPC npc : npcs) {
-            if (npc.getName() == null) {
-                continue;
-            }
-
-            if (npc.getName().equals(customer.getName())) {
+            if (npc.getId() == customer.getNpcTypeId(client)) {
                 client.setHintArrow(npc);
                 return true;
             }
@@ -298,31 +287,27 @@ public class GnomeRestaurantPlugin extends Plugin {
         return false;
     }
 
-    // Mark matching NPC that shows up
-
     @Subscribe
     public void onNpcSpawned(final NpcSpawned event) {
-        // TODO: use ID instead of name
+        var npc = event.getNpc();
 
-        if (event.getNpc() == null || event.getNpc().getName() == null) {
+        if (order == null || !config.showHintArrow()) {
             return;
         }
-
-        if (order != null && event.getNpc().getName().equals(customer.getName()) && config.showHintArrow()) {
-            client.setHintArrow(event.getNpc());
+        if (npc.getId() == customer.getNpcTypeId(client)) {
+            client.setHintArrow(npc);
         }
     }
 
-    // Revert to marking world point if NPC disappears
-
     @Subscribe
     public void onNpcDespawned(final NpcDespawned event) {
-        if (event.getNpc() == null || event.getNpc().getName() == null) {
+        var npc = event.getNpc();
+
+        if (order == null || !config.showHintArrow()) {
             return;
         }
-
-        if (order != null && event.getNpc().getName().equals(customer.getName()) && config.showHintArrow()) {
-            client.setHintArrow(customer.getLocation());
+        if (npc.getId() == customer.getNpcTypeId(client)) {
+            client.setHintArrow(customer.getLocation(client));
         }
     }
 
@@ -389,7 +374,7 @@ public class GnomeRestaurantPlugin extends Plugin {
         }
         // Has player finished a step?
 
-        if (updateStep()) {
+        if (updateOrderStep()) {
             updateOverlayHeader();
             rebuildOverlayTables();
         } else {
