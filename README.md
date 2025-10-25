@@ -11,11 +11,15 @@ A RuneLite plugin that adds quality-of-life features to the Gnome Restaurant min
 
 All features are configurable in the config panel.
 
-### Note about features
+## Changelog
 
-If the timers are disabled, they cannot be restored until the player starts a new order again.
+#### V2.0.0
+* Reworked how the plugin tracks orders and customers
+* The plugin is now aware of your monkey madness 1 & 2 progress when delivering to Garkor
 
-The other features can be re-enabled in the config panel after they are disabled.
+
+#### V1.3
+* The original version by MMagicala
 
 ## Screenshots
 
