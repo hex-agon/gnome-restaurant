@@ -181,6 +181,9 @@ public class GnomeRestaurantPlugin extends Plugin {
      * Returns whether a step has been updated or not
      **/
     private boolean updateOrderStep() {
+        if (order == null) {
+            return true;
+        }
         // Go from the beginning of the recipe to the final item produced
 
         int newStepIdx = 0;
@@ -210,7 +213,16 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void setupUI() {
-        tooltipText = "Deliver " + order.getName() + " to " + customer.getName();
+        if (order == null) {
+            if (!config.showMinigameStart()) {
+                customer = null;
+                return;
+            }
+            tooltipText = "Go back to Gianne for another order";
+            customer = Customer.GIANNE;
+        } else {
+            tooltipText = "Deliver " + order.getName() + " to " + customer.getName();
+        }
 
         if (config.showOverlay()) {
             setupOverlay();
@@ -246,6 +258,9 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void setupOrderTimer() {
+        if (order == null) {
+            return;
+        }
         LOGGER.debug("Setting up order timer");
         int numSecondsLeft;
 
@@ -383,10 +398,6 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void onAluftCustomerChanged(int customerId) {
-        if (customerId == 0) {
-            customer = null;
-            return;
-        }
         customer = Customer.forId(customerId);
         LOGGER.debug("Customer is now {}", customer);
         queueUpdateOrder();
@@ -431,12 +442,20 @@ public class GnomeRestaurantPlugin extends Plugin {
     }
 
     private void updateOverlayHeader() {
-        var instruction = order.getSteps().get(stepIdx).getInstruction().getOverlayDirections();
-        overlayHeader = new OverlayHeader(instruction, stepIdx + 1, order.getSteps().size(), customer, order);
+        if (order == null) {
+            overlayHeader = new OverlayHeader(null, 0, 0, customer, order);
+        } else {
+            var instruction = order.getSteps().get(stepIdx).getInstruction().getOverlayDirections();
+            overlayHeader = new OverlayHeader(instruction, stepIdx + 1, order.getSteps().size(), customer, order);
+        }
     }
 
     private void rebuildOverlayTables() {
         clearOverlayTables();
+
+        if (order == null) {
+            return;
+        }
 
         List<Ingredient> stepIngredients = order.getSteps().get(stepIdx).getIngredients();
         rebuildOverlayTable(stepIngredients, stepIngredientsOverlayTable);
@@ -485,6 +504,7 @@ public class GnomeRestaurantPlugin extends Plugin {
     public static final String SHOW_HINT_ARROW = "showHintArrow";
     public static final String SHOW_WORLD_MAP_POINT = "showWorldMapPoint";
     public static final String USE_SHORTEST_PATH = "useShortestPath";
+    public static final String SHOW_MINIGAME_START = "showMinigameStart";
 
     /**
      * Monitor changes to plugin config and update the plugin accordingly
@@ -531,6 +551,15 @@ public class GnomeRestaurantPlugin extends Plugin {
             } else if (event.getKey().equals(SHOW_DELAY_TIMER) && refusedHardOrder) {
                 if (event.getNewValue().equals("false")) {
                     removeTimer();
+                }
+            } else if (event.getKey().equals(SHOW_MINIGAME_START)) {
+                if (event.getNewValue().equals("false")) {
+                    removeOverlay();
+                    removeWorldMapPoint();
+                    client.clearHintArrow();
+                    removeShortestPath();
+                } else {
+                    queueUpdateOrder();
                 }
             }
         }

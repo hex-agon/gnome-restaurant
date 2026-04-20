@@ -86,4 +86,13 @@ public interface GnomeRestaurantConfig extends Config {
     default boolean useShortestPath() {
         return true;
     }
+
+    @ConfigItem(
+            keyName = GnomeRestaurantPlugin.SHOW_MINIGAME_START,
+            name = "Show Start Hint",
+            description = "Configures whether to also show the path back to Gianne jnr."
+    )
+    default boolean showMinigameStart() {
+        return false;
+    }
 }
