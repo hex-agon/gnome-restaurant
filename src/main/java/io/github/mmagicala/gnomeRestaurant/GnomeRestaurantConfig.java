@@ -77,4 +77,13 @@ public interface GnomeRestaurantConfig extends Config {
     default boolean showWorldMapPoint() {
         return true;
     }
+
+    @ConfigItem(
+            keyName = GnomeRestaurantPlugin.USE_SHORTEST_PATH,
+            name = "Use Shortest Path",
+            description = "Configures whether to use shortest path plugin integration"
+    )
+    default boolean useShortestPath() {
+        return true;
+    }
 }

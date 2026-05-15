@@ -37,6 +37,7 @@ import io.github.mmagicala.gnomeRestaurant.recipe.Order;
 import net.runelite.api.Client;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.NPC;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
@@ -46,8 +47,10 @@ import net.runelite.api.gameval.ItemID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
+import net.runelite.client.events.PluginMessage;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -63,7 +66,9 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @PluginDescriptor(name = "Gnome Restaurant")
 public class GnomeRestaurantPlugin extends Plugin {
@@ -90,6 +95,9 @@ public class GnomeRestaurantPlugin extends Plugin {
 
     @Inject
     private WorldMapPointManager worldMapPointManager;
+
+    @Inject
+    private EventBus eventBus;
 
     // UI
 
@@ -128,6 +136,7 @@ public class GnomeRestaurantPlugin extends Plugin {
         removeOverlay();
         removeWorldMapPoint();
         client.clearHintArrow();
+        removeShortestPath();
 
         stepIdx = 0;
 
@@ -218,6 +227,10 @@ public class GnomeRestaurantPlugin extends Plugin {
         if (config.showWorldMapPoint()) {
             showWorldMapPoint();
         }
+
+        if (config.useShortestPath()) {
+            showShortestPath();
+        }
     }
 
     private void setupOverlay() {
@@ -287,15 +300,44 @@ public class GnomeRestaurantPlugin extends Plugin {
         return false;
     }
 
+    private void showShortestPath() {
+        if (!setShortestPathToCustomer()) {
+            // NPC not in sight
+            // Set destination to approximate location
+            setShortestPath(customer.getLocation(client));
+        }
+    }
+
+    private boolean setShortestPathToCustomer() {
+        var npcs = client.getTopLevelWorldView().npcs();
+
+        for (NPC npc : npcs) {
+            if (npc.getId() == customer.getNpcTypeId(client)) {
+                setShortestPath(npc.getWorldLocation());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void setShortestPath(final WorldPoint destination) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("target", destination);
+        eventBus.post(new PluginMessage("shortestpath", "path", data));
+    }
+
     @Subscribe
     public void onNpcSpawned(final NpcSpawned event) {
         var npc = event.getNpc();
 
-        if (order == null || !config.showHintArrow()) {
+        if (order == null || npc.getId() != customer.getNpcTypeId(client)) {
             return;
         }
-        if (npc.getId() == customer.getNpcTypeId(client)) {
+        if (config.showHintArrow()) {
             client.setHintArrow(npc);
+        }
+        if (config.useShortestPath()) {
+            setShortestPath(npc.getWorldLocation());
         }
     }
 
@@ -303,11 +345,14 @@ public class GnomeRestaurantPlugin extends Plugin {
     public void onNpcDespawned(final NpcDespawned event) {
         var npc = event.getNpc();
 
-        if (order == null || !config.showHintArrow()) {
+        if (order == null || npc.getId() != customer.getNpcTypeId(client)) {
             return;
         }
-        if (npc.getId() == customer.getNpcTypeId(client)) {
+        if (config.showHintArrow()) {
             client.setHintArrow(customer.getLocation(client));
+        }
+        if (config.useShortestPath()) {
+            setShortestPath(customer.getLocation(client));
         }
     }
 
@@ -377,6 +422,9 @@ public class GnomeRestaurantPlugin extends Plugin {
         if (updateOrderStep()) {
             updateOverlayHeader();
             rebuildOverlayTables();
+            if (config.useShortestPath()) {
+                showShortestPath();
+            }
         } else {
             updateOverlayTables();
         }
@@ -436,6 +484,7 @@ public class GnomeRestaurantPlugin extends Plugin {
     public static final String SHOW_OVERLAY = "showOverlay";
     public static final String SHOW_HINT_ARROW = "showHintArrow";
     public static final String SHOW_WORLD_MAP_POINT = "showWorldMapPoint";
+    public static final String USE_SHORTEST_PATH = "useShortestPath";
 
     /**
      * Monitor changes to plugin config and update the plugin accordingly
@@ -468,6 +517,12 @@ public class GnomeRestaurantPlugin extends Plugin {
                 } else {
                     showWorldMapPoint();
                 }
+            } else if (event.getKey().equals(USE_SHORTEST_PATH)) {
+                if (event.getNewValue().equals("false")) {
+                    removeShortestPath();
+                } else {
+                    showShortestPath();
+                }
             }
         } else {
             if (!event.getGroup().equals("gnomerestaurant")) {
@@ -497,6 +552,10 @@ public class GnomeRestaurantPlugin extends Plugin {
     private void removeWorldMapPoint() {
         worldMapPointManager.remove(worldMapPoint);
         worldMapPoint = null;
+    }
+
+    private void removeShortestPath() {
+        eventBus.post(new PluginMessage("shortestpath", "clear"));
     }
 
     private void clearOverlayTables() {
