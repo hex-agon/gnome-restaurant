@@ -13,6 +13,10 @@ All features are configurable in the config panel.
 
 ## Changelog
 
+#### V2.1.0
+* Added shortest path integration enabled by default, you can disable it in the plugin settings
+* Fixed some NPC locations and miss matching recipe items  
+
 #### V2.0.0
 * Reworked how the plugin tracks orders and customers
 * The plugin is now aware of your monkey madness 1 & 2 progress when delivering to Garkor
