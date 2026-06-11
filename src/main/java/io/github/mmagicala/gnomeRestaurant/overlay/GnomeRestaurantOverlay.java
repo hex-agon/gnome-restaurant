@@ -70,8 +70,18 @@ public class GnomeRestaurantOverlay extends OverlayPanel {
     @Override
     public Dimension render(Graphics2D graphics) {
         var header = plugin.overlayHeader();
-        renderOrderOverlay(header);
+        if (header.order != null) {
+            renderOrderOverlay(header);
+        } else {
+            renderStartOverlay(header);
+        }
         return super.render(graphics);
+    }
+
+    private void renderStartOverlay(OverlayHeader header) {
+        String headerText = "Go back to Gianne for another order";
+        LineComponent headerComponent = LineComponent.builder().left(headerText).build();
+        panelComponent.getChildren().add(headerComponent);
     }
 
     private void renderOrderOverlay(OverlayHeader header) {

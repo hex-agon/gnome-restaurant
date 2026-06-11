@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum Customer {
+    GIANNE(0, "Gianne jnr.", CustomerLocation.fixed(NpcID.ALUFT_GNOME_DELIVERY_CONTROLLER, 2439, 3501, 1)),
 
     TRAINER_NACKLEPEN(1, "Trainer Nacklepen", CustomerLocation.fixed(NpcID.GNOME_TORTOISE_TRAINER, 2421, 3525)),
     HIS_ROYAL_HIGHNESS_KING_NARNODE(2, "King Narnode Shareen", CustomerLocation.fixed(NpcID.GRANDTREE_NARNODE, 2466, 3497)),
